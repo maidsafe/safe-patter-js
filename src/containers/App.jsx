@@ -3,29 +3,29 @@ import React from 'react';
 import { withRouter, Route, Switch } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import * as webIdsActions from '../actions/webIds_actions';
+import * as userActions from '../actions/user_actions';
 
 import styles from './global.css';
 import Header from '../components/Header/Header';
 import Editor from '../components/Editor/Editor';
 import List from '../components/List/List';
 
-import IdForm from '../components/IdForm/IdForm';
+import PostForm from '../components/PostForm/PostForm';
 
 
 class App extends React.Component
 {
     render = () =>
     {
-        const { user, match } = this.props;
-
+        const { user, match, addPost } = this.props;
+        // console.log('app props', this.props)
         return (
 
             <div className={ styles.appContainer }>
                 <Route path="/" component={ Header } />
                 <Switch>
                     <Route path="/edit" render={ (props) => <Editor user={ user } { ...props }/> } />
-                    <Route path="/create/new" component={ IdForm } />
+                    <Route path="/create/new" render={ (props) => <PostForm addPost={ addPost } { ...props }/> } />
                     <Route path="/" render={ () => <List posts={ user.posts } /> } />
                 </Switch>
             </div>
@@ -38,7 +38,7 @@ function mapDispatchToProps( dispatch )
 {
     const actions =
     {
-        ...webIdsActions,
+        ...userActions,
     };
     return bindActionCreators( actions, dispatch );
 }

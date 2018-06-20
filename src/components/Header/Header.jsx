@@ -16,7 +16,7 @@ const Header = ( props ) =>
 
     return (
         <div>
-            <h1>WebId Manager</h1>
+            <h1>Not Twitter</h1>
             <Menu mode="horizontal" selectedKeys={ selectedKeys }>
                 <Menu.Item key={ PATHS.HOME }>
                     <NavLink to={ PATHS.HOME } >Home</NavLink>

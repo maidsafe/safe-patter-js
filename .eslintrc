@@ -7,7 +7,7 @@
   "rules": {
     "arrow-parens": ["off"],
     "brace-style": ["error", "allman"],
-    "compat/compat": "error",
+    # "compat/compat": "error",
     "consistent-return": "off",
     "comma-dangle": "off",
     "flowtype-errors/show-errors": "error",
@@ -51,7 +51,7 @@
     "flowtype-errors",
     "import",
     "promise",
-    "compat",
+    # "compat",
     "react"
   ],
   "settings": {

@@ -3,6 +3,7 @@ import { render } from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
+import promiseMiddleware from 'redux-promise';
 
 import App from './containers/App';
 import rootReducer from './reducers';
@@ -22,7 +23,8 @@ function configureStore( initialState )
     return createStore(
         rootReducer,
         initialState,
-        applyMiddleware( thunk )
+        applyMiddleware( promiseMiddleware, thunk ),
+        // window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
     );
 }
 
