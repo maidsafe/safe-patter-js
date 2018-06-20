@@ -25,8 +25,8 @@ class App extends React.Component
                 <Route path="/" component={ Header } />
                 <Switch>
                     <Route path="/edit" render={ (props) => <Editor user={ user } { ...props }/> } />
-                    <Route path="/create/new" render={ (props) => <PostForm addPost={ addPost } { ...props }/> } />
-                    <Route path="/" render={ () => <List posts={ user.posts } /> } />
+                    <Route path="/create/new" render={ (props) => <PostForm user={user} addPost={ addPost } { ...props }/> } />
+                    <Route path="/" render={ () => <List user={ user } /> } />
                 </Switch>
             </div>
         );

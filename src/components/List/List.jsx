@@ -5,12 +5,13 @@ import { PATHS } from '../../constants';
 
 const IdList = ( props ) =>
 {
-    const posts = props.posts;
+    const { user } = props;
+    const { posts } = user;
     posts.sort( ( a, b) => b.timestamp - a.timestamp);
 
     return (
         <div>
-            <h2>Your Post History:</h2>
+            <h2>Your Post Timeline, {user ? user.name : ''}:</h2>
             <List>
                 { posts.map( ( post, i ) => (
                     <List.Item key={ i }>
