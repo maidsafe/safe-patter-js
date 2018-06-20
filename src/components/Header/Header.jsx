@@ -21,15 +21,15 @@ const HeaderComponent = ( props ) =>
         <div>
             <h1>Not Twitter</h1>
             <Menu mode="horizontal" selectedKeys={ selectedKeys }>
-                <Menu.Item key={ PATHS.HOME }>
-                    <NavLink to={ PATHS.HOME } >Home</NavLink>
+                <Menu.Item key={ PATHS.TIMELINE }>
+                    <NavLink to={ PATHS.TIMELINE } >Home</NavLink>
                 </Menu.Item>
                 <Menu.Item key={ PATHS.CREATE }>
                     <NavLink to={ PATHS.CREATE } >Create</NavLink>
                 </Menu.Item>
-                {/* <Menu.Item key={ PATHS.EDIT }>
-                    <NavLink to={ PATHS.EDIT } >Edit</NavLink>
-                </Menu.Item> */}
+                <Menu.Item key={ PATHS.MESSAGE }>
+                    <NavLink to={ PATHS.MESSAGE } >Message</NavLink>
+                </Menu.Item>
             </Menu>
         </div>
     );

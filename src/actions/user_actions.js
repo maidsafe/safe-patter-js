@@ -1,8 +1,9 @@
 import { createAction, createActions } from 'redux-actions';
 
 export const TYPES = {
-    ADD_POST : 'ADD_POST',
-    SET_CURRENT_USER: 'SET_CURRENT_USER'
+    ADD_POST         : 'ADD_POST',
+    SET_CURRENT_USER : 'SET_CURRENT_USER',
+    SEND_MESSAGE     : 'SEND_MESSAGE'
 };
 
 // export const {
@@ -12,11 +13,12 @@ export const TYPES = {
 // } = createActions( TYPES.ADD_POST );
 // }
 
-export const addPost = createAction(
-    TYPES.ADD_POST,
-
-    // sim a promise for the network environment
-    async ( post ) =>
+export const {
+    addPost,
+    setCurrentUser,
+    sendMessage
+} = createActions( {
+    [TYPES.ADD_POST] : async ( post ) =>
     {
         const x = new Promise( ( resolve, reject ) =>
         {
@@ -27,24 +29,29 @@ export const addPost = createAction(
         await x;
 
         return x;
-    }
-);
-
-export const setCurrentUser = createAction(
-    TYPES.SET_CURRENT_USER,
-
-    // sim a promise for the network environment
-    async ( userObjOrId ) =>
+    },
+    [TYPES.SET_CURRENT_USER] : async ( post ) =>
     {
-        //TODO: parse if only ID/public id etc
         const x = new Promise( ( resolve, reject ) =>
         {
             console.log( 'Should do SAFE things for getting User if needed...' );
-            resolve( userObjOrId );
+            resolve( post );
+        } );
+
+        await x;
+
+        return x;
+    },
+    [TYPES.SEND_MESSAGE] : async ( post ) =>
+    {
+        const x = new Promise( ( resolve, reject ) =>
+        {
+            console.log( 'Should do SAFE things for sending a message...' );
+            resolve( post );
         } );
 
         await x;
 
         return x;
     }
-);
+} );

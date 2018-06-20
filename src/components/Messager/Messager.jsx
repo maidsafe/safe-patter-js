@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 
 import PostForm from '../PostForm/PostForm';
 // {
@@ -12,7 +12,7 @@ import PostForm from '../PostForm/PostForm';
 // }
 
 
-export default class Editor extends React.Component
+export default class Messager extends React.Component
 {
     static propTypes =
     {
@@ -33,16 +33,24 @@ export default class Editor extends React.Component
         return (
             <div className="wrapper">
                 <Switch>
-                    {/* <Route
+                    <Route
+                        path={ `${match.url}/new` }
+                        render={ ( props ) =>
+                            ( <PostForm
+                                { ...props }
+                            /> )
+                        }
+                    />
+                    <Route
                         path={ `${match.url}/:name` }
                         render={ ( props ) =>
                             ( <PostForm
                                 { ...props }
-                                id={ webIds.find( id => id.name === props.match.params.name ) }
+                                to={ props.match.params.name  }
                             /> )
                         }
-                    /> */}
-                    <Route path={ `${match.url}` } render={ () => <h1>Select a profile to edit</h1> } />
+                    />
+                    <Route path={ `${match.url}` } render={ () => <Redirect to={`${match.url}/new`} /> } />
                 </Switch>
             </div>
         );

@@ -1,13 +1,13 @@
 import React from 'react';
 // import PropTypes from 'prop-types';
-import { withRouter, Route, Switch } from 'react-router-dom';
+import { withRouter, Route, Switch, Redirect } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as userActions from '../actions/user_actions';
 
 import styles from './global.css';
 import HeaderComponent from '../components/Header/Header';
-import Editor from '../components/Editor/Editor';
+import Messager from '../components/Messager/Messager';
 import List from '../components/List/List';
 
 import PostForm from '../components/PostForm/PostForm';
@@ -43,9 +43,11 @@ class App extends React.Component
                             <Route path="/" component={ HeaderComponent } />
                             <Content>
                                 <Switch>
-                                    <Route path="/edit" render={ ( props ) => <Editor user={ user } { ...props } /> } />
+                                    <Route path="/message" render={ ( props ) => <Messager user={ user } { ...props } /> } />
                                     <Route path="/create/new" render={ ( props ) => <PostForm user={ user } addPost={ addPost } { ...props } /> } />
-                                    <Route path="/" render={ () => <List user={ user } /> } />
+                                    <Route path="/timeline" render={ () => <List user={ user } /> } />
+                                    <Route path="/" render={ () => <Redirect to="/timeline" /> } />
+
                                 </Switch>
                             </Content>
                         </Layout>

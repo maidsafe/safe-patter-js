@@ -10,16 +10,17 @@ const FormItem = Form.Item;
  * the form with passed values.
  * @param  {Object} id post object
  */
-const mapPropsToFields = ( { post } ) => {
-    if( !post ) return;
+const mapPropsToFields = ( { post } ) =>
+{
+    if ( !post ) return;
 
     return {
         text : Form.createFormField( {
             ...post,
             value : post.text || '',
         } )
-    }
-} ;
+    };
+};
 
 /**
  * Form for post creation/editing. Uses and design Form components (and form.create() method)
@@ -29,17 +30,16 @@ const mapPropsToFields = ( { post } ) => {
 class PostForm extends React.Component
 {
     static propTypes = {
-        text : PropTypes.string,
-        submit : PropTypes.func
+        text   : PropTypes.string,
+        to     : PropTypes.string
     }
     static defaultProps = {
-        text: 'Your not tweet here...',
-        submit : ( values ) => console.log( 'Submisssion', values )
+        text   : 'Your not tweet here...'
     }
 
     handleSubmit = ( e ) =>
     {
-        const { addPost } = this.props;
+        const { addPost, sendMessage } = this.props;
 
         e.preventDefault();
         this.props.form.validateFields( ( err, values ) =>
@@ -50,7 +50,11 @@ class PostForm extends React.Component
                 postToAdd.timestamp = Date.now();
 
                 console.log( 'Received values of form: ', values );
-                addPost( postToAdd )
+                if( this.recipientUnknown )
+                {
+                    return sendMessage( postToAdd );
+                }
+                addPost( postToAdd );
             }
         } );
     }
@@ -60,9 +64,25 @@ class PostForm extends React.Component
     {
         const { getFieldDecorator } = this.props.form;
 
-        const { id, submit } = this.props;
+        const { to, match } = this.props;
+
+        this.recipientUnknown = !to && match.url.startsWith( '/message' );
+
         return (
             <Form layout="vertical" onSubmit={ this.handleSubmit } >
+                {
+                    this.recipientUnknown &&
+                        <FormItem label="To" >
+                            {getFieldDecorator( 'to', {
+                                rules : [{ required: true, message: 'Please select someone to message.' }],
+                            } )( <Input
+                                // and icons removed as attempts to access a font online
+                                // prefix={ <Icon type="user" style={ { color: 'rgba(0,0,0,.25)' } } /> }
+                                placeholder="Someone super important..."
+                            /> )}
+                        </FormItem>
+
+                }
                 <FormItem label="New Post" >
                     {getFieldDecorator( 'text', {
                         rules : [{ required: true, message: 'Please input some text!' }],
