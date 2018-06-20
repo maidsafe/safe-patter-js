@@ -6,11 +6,15 @@ import { connect } from 'react-redux';
 import * as userActions from '../actions/user_actions';
 
 import styles from './global.css';
-import Header from '../components/Header/Header';
+import HeaderComponent from '../components/Header/Header';
 import Editor from '../components/Editor/Editor';
 import List from '../components/List/List';
 
 import PostForm from '../components/PostForm/PostForm';
+
+import { Layout, Row, Col } from 'antd';
+
+const { Content } = Layout;
 
 
 class App extends React.Component
@@ -20,14 +24,35 @@ class App extends React.Component
         const { user, match, addPost } = this.props;
         // console.log('app props', this.props)
         return (
+            <div style={ {
+                maxWidth : '800px',
+                display  : 'block',
+                margin   : '0 auto'
+            } }
+            >
+                <Row
+                    gutter={ {
+                        xs : 8, sm : 16, md : 24, lg : 32
+                    } }
+                    type="flex"
+                    justify="center"
 
-            <div className={ styles.appContainer }>
-                <Route path="/" component={ Header } />
-                <Switch>
-                    <Route path="/edit" render={ (props) => <Editor user={ user } { ...props }/> } />
-                    <Route path="/create/new" render={ (props) => <PostForm user={user} addPost={ addPost } { ...props }/> } />
-                    <Route path="/" render={ () => <List user={ user } /> } />
-                </Switch>
+                >
+                    <Col span={ 24 }>
+                        <Layout className={ styles.appContainer }>
+                            <Route path="/" component={ HeaderComponent } />
+                            <Content>
+                                <Switch>
+                                    <Route path="/edit" render={ ( props ) => <Editor user={ user } { ...props } /> } />
+                                    <Route path="/create/new" render={ ( props ) => <PostForm user={ user } addPost={ addPost } { ...props } /> } />
+                                    <Route path="/" render={ () => <List user={ user } /> } />
+                                </Switch>
+                            </Content>
+                        </Layout>
+
+                    </Col>
+                </Row>
+
             </div>
         );
     }

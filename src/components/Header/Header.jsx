@@ -2,8 +2,11 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Menu } from 'antd';
 import { PATHS } from '../../constants';
+import { Layout } from 'antd';
 
-const Header = ( props ) =>
+const { Header } = Layout;
+
+const HeaderComponent = ( props ) =>
 {
     const selectedKeys = [];
     const location = props.location.pathname;
@@ -29,8 +32,7 @@ const Header = ( props ) =>
                 </Menu.Item> */}
             </Menu>
         </div>
-
     );
 };
 
-export default Header;
+export default HeaderComponent;
