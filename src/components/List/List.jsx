@@ -34,7 +34,7 @@ function timeSince( timeStamp )
 }
 
 
-const IdList = ( props ) =>
+const List = ( props ) =>
 {
     const { user } = props;
     const { posts, inbox } = user;
@@ -76,4 +76,4 @@ const IdList = ( props ) =>
     );
 };
 
-export default IdList;
+export default List;

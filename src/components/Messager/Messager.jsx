@@ -29,7 +29,7 @@ export default class Messager extends React.Component
     {
         const { match } = this.props;
         // const { match, webIds } = this.props;
-        console.log( '>>>>>>>>>', this.props );
+        // console.log( '>>>>>>>>>', this.props );
         return (
             <div className="wrapper">
                 <Switch>

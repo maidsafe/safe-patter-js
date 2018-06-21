@@ -36,7 +36,6 @@ class App extends React.Component
                     } }
                     type="flex"
                     justify="center"
-
                 >
                     <Col span={ 24 }>
                         <Layout className={ styles.appContainer }>
@@ -45,6 +44,7 @@ class App extends React.Component
                                 <Switch>
                                     <Route path="/message" render={ ( props ) => <Messager user={ user } { ...props } /> } />
                                     <Route path="/create/new" render={ ( props ) => <PostForm user={ user } addPost={ addPost } { ...props } /> } />
+                                    <Route path="/create" render={ ( props ) => <Redirect to="/create/new" /> } />
                                     <Route path="/timeline" render={ () => <List user={ user } /> } />
                                     <Route path="/" render={ () => <Redirect to="/timeline" /> } />
 
