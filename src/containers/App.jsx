@@ -45,7 +45,7 @@ class App extends React.Component
                                     <Route path="/message" render={ ( props ) => <Messager user={ user } { ...props } /> } />
                                     <Route path="/create/new" render={ ( props ) => <PostForm user={ user } addPost={ addPost } { ...props } /> } />
                                     <Route path="/create" render={ ( props ) => <Redirect to="/create/new" /> } />
-                                    <Route path="/timeline" render={ () => <List user={ user } /> } />
+                                    <Route path="/timeline" render={ () => <List posts={ user.posts } inbox={ user.inbox } name={ user.name } /> } />
                                     <Route path="/" render={ () => <Redirect to="/timeline" /> } />
 
                                 </Switch>
