@@ -9,7 +9,7 @@
     "start": "NODE_ENV=development parcel public/index.html --port 2345",
     "lint": "eslint --cache --format=node_modules/eslint-formatter-pretty .",
     "lint-fix": "yarn run lint -- --fix",
-    "prepush" : "yarn test"
+    "prepush": "yarn test"
   },
   "dependencies": {
     "add": "2.0.6",

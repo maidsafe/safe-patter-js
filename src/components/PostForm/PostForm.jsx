@@ -15,9 +15,9 @@ const mapPropsToFields = ( { post } ) =>
     if ( !post ) return;
 
     return {
-        text : Form.createFormField( {
+        content : Form.createFormField( {
             ...post,
-            value : post.text || '',
+            value : post.content || '',
         } )
     };
 };
@@ -39,7 +39,7 @@ class PostForm extends React.Component
 
     handleSubmit = ( e ) =>
     {
-        const { addPost, sendMessage } = this.props;
+        const { addPost, sendMessage, user } = this.props;
 
         e.preventDefault();
         this.props.form.validateFields( ( err, values ) =>
@@ -47,14 +47,15 @@ class PostForm extends React.Component
             if ( !err )
             {
                 const postToAdd = { ...values };
-                postToAdd.timestamp = Date.now();
+                const nowTimestamp = new Date();
+                postToAdd.published = nowTimestamp.toISOString();
 
                 console.log( 'Received values of form: ', values );
                 if( this.recipientUnknown )
                 {
                     return sendMessage( postToAdd );
                 }
-                addPost( postToAdd );
+                addPost( user.webId, user.targetWebId, postToAdd );
             }
         } );
     }
@@ -84,7 +85,14 @@ class PostForm extends React.Component
 
                 }
                 <FormItem label="New Post" >
-                    {getFieldDecorator( 'text', {
+                    {getFieldDecorator( 'summary', {
+                        rules : [{ required: true, message: 'Please input a title' }],
+                    } )( <Input
+                        // and icons removed as attempts to access a font online
+                        // prefix={ <Icon type="user" style={ { color: 'rgba(0,0,0,.25)' } } /> }
+                        placeholder="A summary..."
+                    /> )}
+                    {getFieldDecorator( 'content', {
                         rules : [{ required: true, message: 'Please input some text!' }],
                     } )( <Input.TextArea
                         // and icons removed as attempts to access a font online

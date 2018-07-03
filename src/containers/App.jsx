@@ -39,7 +39,7 @@ class App extends React.Component
                 >
                     <Col span={ 24 }>
                         <Layout className={ styles.appContainer }>
-                            <Route path="/" component={ HeaderComponent } />
+                            <Route path="/" render={ ( props ) => <HeaderComponent targetWebId={ user.targetWebId } { ...props } /> } />
                             <Content>
                                 <Switch>
                                     <Route path="/message" render={ ( props ) => <Messager user={ user } { ...props } /> } />

@@ -9,6 +9,7 @@ const { Meta } = Card;
 
 function timeSince( timeStamp )
 {
+console.log("TIME:", timeStamp)
     if ( !timeStamp ) return '';
 
     const timeStampDate = new Date( timeStamp );
@@ -59,8 +60,7 @@ class List extends React.Component
 
         const allPosts = [...posts, ...inbox];
 
-        allPosts.sort( ( a, b ) => b.timestamp - a.timestamp );
-
+        allPosts.sort( ( a, b ) => new Date(b.published) - new Date(a.published) );
 
         return (
             <div>
@@ -73,9 +73,9 @@ class List extends React.Component
                 >
                     { allPosts.map( ( post, i ) =>
                     {
-                        const theTimeSince = post.timestamp ? timeSince( post.timestamp ) : '';
+                        const theTimeSince = post.published ? timeSince( new Date(post.published) ) : '';
 
-                        if ( post.text )
+                        if ( post.content )
                         {
                             return ( <Card
                                 hoverable
@@ -83,15 +83,19 @@ class List extends React.Component
                                 title={
                                     <div>
                                         {
-                                            post.from &&
-                                            <div>From: {post.from}</div>
+                                            post.actor &&
+                                            <div>From: {post.actor}</div>
                                         }
                                         <Meta description={ theTimeSince } />
                                     </div>
                                     }
                                     style={ { margin: '1rem' } }
                                 >
-                                { post.text}
+                                  <Card
+                                    title={ post.summary }
+                                  >
+                                  { post.content}
+                                  </Card>
                                 </Card>
                             );
                         }
