@@ -13,134 +13,140 @@ let safeApp = null;
 
 const connect = async () =>
 {
-  if (safeApp !== null && safeApp.isNetStateConnected()) return;
+    if ( safeApp !== null && safeApp.isNetStateConnected() ) return;
 
-  console.log("Connecting to the network...");
-  const appInfo = {
-    id: "net.maidsafe.example",
-    name: 'Not Twitter SAFE App',
-    vendor: 'MaidSafe.net Ltd'
-  }
-  safeApp = await window.safe.initialiseApp(appInfo);
-  const authReqUri = await safeApp.auth.genAuthUri();
-  const authUri = await window.safe.authorise(authReqUri);
-  await safeApp.auth.loginFromUri(authUri);
-}
+    console.log( 'Connecting to the network...' );
+    const appInfo = {
+        id     : 'net.maidsafe.example',
+        name   : 'Not Twitter SAFE App',
+        vendor : 'MaidSafe.net Ltd'
+    };
 
-const postNewPost = async (webId, wallWebId, newPost) =>
+    safeApp = await window.safe.initialiseApp( appInfo );
+    const authReqUri = await safeApp.auth.genAuthUri();
+    const authUri = await window.safe.authorise( authReqUri );
+    await safeApp.auth.loginFromUri( authUri );
+};
+
+const postNewPost = async ( webId, wallWebId, newPost ) =>
 {
     // Now we can add the post in the posts container
-    const postsContainer = await safeApp.mutableData.newPublic(wallWebId.posts.xorName, wallWebId.posts.typeTag);
-    const postsRdf = postsContainer.emulateAs('rdf');
+    const postsContainer =
+        await safeApp.mutableData.newPublic( wallWebId.posts.xorName, wallWebId.posts.typeTag );
+    const postsRdf = postsContainer.emulateAs( 'rdf' );
 
     const graphId = `${wallWebId.id}/posts`;
-    newPost.id = `${graphId}/${Math.round(Math.random() * 100000)}`;
+    newPost.id = `${graphId}/${Math.round( Math.random() * 100000 )}`;
     newPost.actor = webId.id;
-    const id = postsRdf.sym(newPost.id);
-    console.log("GRAPH ID:", graphId)
-    postsRdf.setId(graphId);
+    const id = postsRdf.sym( newPost.id );
+    console.log( 'GRAPH ID:', graphId );
+    postsRdf.setId( graphId );
 
-    const ACTSTREAMS = postsRdf.namespace('https://www.w3.org/ns/activitystreams/');
+    const ACTSTREAMS = postsRdf.namespace( 'https://www.w3.org/ns/activitystreams/' );
 
-    postsRdf.add(id, ACTSTREAMS('type'), postsRdf.literal('Note'));
-    postsRdf.add(id, ACTSTREAMS('attributedTo'), postsRdf.literal(webId.id));
-    postsRdf.add(id, ACTSTREAMS('summary'), postsRdf.literal(newPost.summary));
-    postsRdf.add(id, ACTSTREAMS('published'), postsRdf.literal(newPost.published));
-    postsRdf.add(id, ACTSTREAMS('content'), postsRdf.literal(newPost.content));
+    postsRdf.add( id, ACTSTREAMS( 'type' ), postsRdf.literal( 'Note' ) );
+    postsRdf.add( id, ACTSTREAMS( 'attributedTo' ), postsRdf.literal( webId.id ) );
+    postsRdf.add( id, ACTSTREAMS( 'summary' ), postsRdf.literal( newPost.summary ) );
+    postsRdf.add( id, ACTSTREAMS( 'published' ), postsRdf.literal( newPost.published ) );
+    postsRdf.add( id, ACTSTREAMS( 'content' ), postsRdf.literal( newPost.content ) );
 
-    const serial = await postsRdf.serialise('application/ld+json');
-    console.log("SERIAL NEW POST:", serial);
+    const serial = await postsRdf.serialise( 'application/ld+json' );
+    console.log( 'SERIAL NEW POST:', serial );
 
     await postsRdf.append();
 
-    //console.log("NEW POST:", newPost);
+    // console.log("NEW POST:", newPost);
     return newPost;
-}
+};
 
-const fetchWallWebId = async (webIdUri) =>
+const fetchWallWebId = async ( webIdUri ) =>
 {
-    const { serviceMd: webIdMd, type } = await safeApp.fetch(webIdUri);
-    if (type !== 'RDF') throw "Service is not mapped to a WebID RDF";
+    const { serviceMd: webIdMd, type } = await safeApp.fetch( webIdUri );
+    if ( type !== 'RDF' ) throw 'Service is not mapped to a WebID RDF';
 
-    const postsRdf = webIdMd.emulateAs('rdf');
+    const postsRdf = webIdMd.emulateAs( 'rdf' );
     await postsRdf.nowOrWhenFetched();
 
-    //const serial = await postsRdf.serialise();
-    //console.log("Target WebID doc:", serial);
+    // const serial = await postsRdf.serialise();
+    // console.log("Target WebID doc:", serial);
 
-    const FOAF = postsRdf.namespace('http://xmlns.com/foaf/0.1/');
-    let match = postsRdf.statementsMatching(postsRdf.sym(`${webIdUri}#me`), FOAF('name'), undefined);
+    const FOAF = postsRdf.namespace( 'http://xmlns.com/foaf/0.1/' );
+    let match = postsRdf.statementsMatching( postsRdf.sym( `${webIdUri}#me` ), FOAF( 'name' ), undefined );
     const name = match[0].object.value;
-    match = postsRdf.statementsMatching(postsRdf.sym(`${webIdUri}#me`), FOAF('nick'), undefined);
+    match = postsRdf.statementsMatching( postsRdf.sym( `${webIdUri}#me` ), FOAF( 'nick' ), undefined );
     const nick = match[0].object.value;
-    match = postsRdf.statementsMatching(postsRdf.sym(`${webIdUri}#me`), FOAF('website'), undefined);
+    match = postsRdf.statementsMatching( postsRdf.sym( `${webIdUri}#me` ), FOAF( 'website' ), undefined );
     const website = match[0].object.value;
-    match = postsRdf.statementsMatching(postsRdf.sym(`${webIdUri}#me`), FOAF('image'), undefined);
+    match = postsRdf.statementsMatching( postsRdf.sym( `${webIdUri}#me` ), FOAF( 'image' ), undefined );
     const image = match[0].object.value;
 
-    const SAFETERMS = postsRdf.namespace('http://safenetwork.org/safevocab/');
-    match = postsRdf.statementsMatching(postsRdf.sym(`${webIdUri}/posts`), SAFETERMS('xorName'), undefined);
-    const xorName = match[0].object.value.split(',');
-    match = postsRdf.statementsMatching(postsRdf.sym(`${webIdUri}/posts`), SAFETERMS('typeTag'), undefined);
-    const typeTag = parseInt(match[0].object.value);
+    const SAFETERMS = postsRdf.namespace( 'http://safenetwork.org/safevocab/' );
+    match = postsRdf.statementsMatching( postsRdf.sym( `${webIdUri}/posts` ), SAFETERMS( 'xorName' ), undefined );
+    const xorName = match[0].object.value.split( ',' );
+    match = postsRdf.statementsMatching( postsRdf.sym( `${webIdUri}/posts` ), SAFETERMS( 'typeTag' ), undefined );
+    const typeTag = parseInt( match[0].object.value );
 
     const wallWebId = {
-      id: webIdUri,
-      name,
-      nick,
-      website,
-      image,
-      posts: {
-        xorName,
-        typeTag
-      }
-    }
+        id    : webIdUri,
+        name,
+        nick,
+        website,
+        image,
+        posts : {
+            xorName,
+            typeTag
+        }
+    };
     return wallWebId;
-}
+};
 
-const fetchWallPosts = async (wallWebId) =>
+const fetchWallPosts = async ( wallWebId ) =>
 {
-    const postsMd = await safeApp.mutableData.newPublic(wallWebId.posts.xorName, wallWebId.posts.typeTag);
+    const postsMd = await safeApp.mutableData.newPublic( wallWebId.posts.xorName.split(','), parseInt( wallWebId.posts.typeTag ) );
     const entries = await postsMd.getEntries();
     const list = await entries.listEntries();
-    list.forEach((e) => {
-      console.log("LIST:", e.key.toString(), e.value.buf.toString())
-    })
+    list.forEach( ( e ) =>
+    {
+        console.log( 'LIST:', e.key.toString(), e.value.buf.toString() );
+    } );
 
-    const postsRdf = postsMd.emulateAs('rdf');
+    const postsRdf = postsMd.emulateAs( 'rdf' );
     await postsRdf.nowOrWhenFetched();
 
+    await postsRdf.setId( 'sadsadsads' );
     const serial = await postsRdf.serialise();
-    console.log("Target WebID doc:", serial);
+    console.log( 'Target WebID doc:', serial );
 
     const keys = await postsMd.getKeys();
-    let posts = [];
-    const ACTSTREAMS = postsRdf.namespace('https://www.w3.org/ns/activitystreams/');
-    keys.forEach((key) => {
-      //console.log("KEYS:", key.toString())
-      const id = key.toString();
-      let match = postsRdf.statementsMatching(postsRdf.sym(id), ACTSTREAMS('type'), undefined);
-      const type = match[0].object.value;
-      match = postsRdf.statementsMatching(postsRdf.sym(id), ACTSTREAMS('attributedTo'), undefined);
-      const actor = match[0].object.value;
-      match = postsRdf.statementsMatching(postsRdf.sym(id), ACTSTREAMS('published'), undefined);
-      const published = match[0].object.value;
-      match = postsRdf.statementsMatching(postsRdf.sym(id), ACTSTREAMS('summary'), undefined);
-      const summary = match[0].object.value;
-      match = postsRdf.statementsMatching(postsRdf.sym(id), ACTSTREAMS('content'), undefined);
-      const content = match[0].object.value;
-      const post = {
-        id,
-        type,
-        actor,
-        published,
-        summary,
-        content
-      }
-      posts.push(post);
-    });
+    const posts = [];
+
+    const ACTSTREAMS = postsRdf.namespace( 'https://www.w3.org/ns/activitystreams/' );
+    keys.forEach( ( key ) =>
+    {
+        // console.log("KEYS:", key.toString())
+        const id = key.toString();
+        let match = postsRdf.statementsMatching( postsRdf.sym( id ), ACTSTREAMS( 'type' ), undefined );
+        const type = match[0].object.value;
+        match = postsRdf.statementsMatching( postsRdf.sym( id ), ACTSTREAMS( 'attributedTo' ), undefined );
+        const actor = match[0].object.value;
+        match = postsRdf.statementsMatching( postsRdf.sym( id ), ACTSTREAMS( 'published' ), undefined );
+        const published = match[0].object.value;
+        match = postsRdf.statementsMatching( postsRdf.sym( id ), ACTSTREAMS( 'summary' ), undefined );
+        const summary = match[0].object.value;
+        match = postsRdf.statementsMatching( postsRdf.sym( id ), ACTSTREAMS( 'content' ), undefined );
+        const content = match[0].object.value;
+        const post = {
+            id,
+            type,
+            actor,
+            published,
+            summary,
+            content
+        };
+        posts.push( post );
+    } );
     return posts;
-}
+};
 
 export const {
     connectToNet,
@@ -156,29 +162,28 @@ export const {
     },
     [TYPES.ADD_POST] : async ( webId, wallWebId, post ) =>
     {
-        const newPost = await postNewPost(webId, wallWebId, post);
+        const newPost = await postNewPost( webId, wallWebId, post );
         return newPost;
     },
-    [TYPES.SET_CURRENT_USER] : async ( user ) =>
+    [TYPES.SET_CURRENT_USER] : async ( webId ) =>
     {
-        //if (!safeApp || !safeApp.isNetStateConnected()) return;
+        // if (!safeApp || !safeApp.isNetStateConnected()) return;
         await connect();
-        //const webId = { ...user };
-        const webId = await fetchWallWebId( 'safe://mywebid.gabriel' ); // FIXME: remove this
-        console.log( 'Fetch info from the SAFE Network for user:', webId );
-        const wallWebId = await fetchWallWebId( 'safe://mywebid.gabriel' );
-        const users = {
-          webId,
-          wallWebId
-        }
-        const posts = await fetchWallPosts(wallWebId); // TODO: trigger the FETCH_POSTS actions instead
-        return { users, posts };
+        // const webId = { ...user };
+        // const webId = await fetchWallWebId( webId["@id"] ); // FIXME: remove this
+        console.log( 'Getting info from Peruse for user:', webId  );
+        const wallWebId = webId;
+
+        const posts = await fetchWallPosts( wallWebId ); // TODO: trigger the FETCH_POSTS actions instead
+        return {
+            webId,
+        wallWebId, posts };
     },
     [TYPES.SWITCH_WALL] : async ( wallWebIdUri ) =>
     {
         console.log( 'Target user changed. Fetch info from the SAFE Network for user:', wallWebIdUri );
         const wallWebId = await fetchWallWebId( wallWebIdUri );
-        const posts = await fetchWallPosts(wallWebId); // TODO: trigger the FETCH_POSTS actions instead
+        const posts = await fetchWallPosts( wallWebId ); // TODO: trigger the FETCH_POSTS actions instead
         return { wallWebId, posts };
     },
     [TYPES.FETCH_POSTS] : async ( wallWebId ) =>

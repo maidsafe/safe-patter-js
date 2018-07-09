@@ -32,8 +32,8 @@ export default ( state = initialState, action ) =>
         {
             return {
               ...state,
-              webId: payload.users.webId,
-              wallWebId: payload.users.wallWebId,
+              webId: payload.webId,
+              wallWebId: payload.wallWebId,
               posts: payload.posts
             };
         }
