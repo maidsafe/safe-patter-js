@@ -10,21 +10,22 @@ import rootReducer from './reducers';
 
 import * as userActions from './actions/user_actions';
 
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const middleware = [thunk, promiseMiddleware];
+const enhancer = composeEnhancers( applyMiddleware( ...middleware ) );
 
 function configureStore( initialState )
 {
     return createStore(
         rootReducer,
         initialState,
-        applyMiddleware( promiseMiddleware, thunk ),
-        // window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+        enhancer
     );
 }
 
-const store = configureStore( {} );
-
 // Authorise app and connect to the network up front
-//store.dispatch( userActions.connectToNet() );
+// store.dispatch( userActions.connectToNet() );
+const store = configureStore( {} );
 
 
 if ( window.webIdEventEmitter )
