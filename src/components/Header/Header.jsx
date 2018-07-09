@@ -25,11 +25,11 @@ class HeaderComponent extends React.Component
       return (
           <div>
               <h1>Not Twitter</h1>
-              <div>Logged in as: { webId ? `${webId.nick} (${webId.id})` : '<not selected>'}</div>
+              <div>Logged in as: { webId ? `${webId.nick} (${webId['@id']})` : '<not selected>'}</div>
               <br /><br />
               <Form layout="vertical" onSubmit={ () => switchWall("safe://mywebid.gabriel") } >
                 <FormItem
-                  label={ wallWebId && wallWebId.id }
+                  label={ wallWebId && wallWebId['@id'] }
                   extra="Enter a WebID URI to search"
                 >
                   <Row gutter={8}>

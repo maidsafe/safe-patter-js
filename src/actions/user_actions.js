@@ -35,9 +35,9 @@ const postNewPost = async ( webId, wallWebId, newPost ) =>
         await safeApp.mutableData.newPublic( wallWebId.posts.xorName, wallWebId.posts.typeTag );
     const postsRdf = postsContainer.emulateAs( 'rdf' );
 
-    const graphId = `${wallWebId.id}/posts`;
+    const graphId = `${wallWebId['@id']}/posts`;
     newPost.id = `${graphId}/${Math.round( Math.random() * 100000 )}`;
-    newPost.actor = webId.id;
+    newPost.actor = webId['@id'];
     const id = postsRdf.sym( newPost.id );
     console.log( 'GRAPH ID:', graphId );
     postsRdf.setId( graphId );
@@ -45,7 +45,7 @@ const postNewPost = async ( webId, wallWebId, newPost ) =>
     const ACTSTREAMS = postsRdf.namespace( 'https://www.w3.org/ns/activitystreams/' );
 
     postsRdf.add( id, ACTSTREAMS( 'type' ), postsRdf.literal( 'Note' ) );
-    postsRdf.add( id, ACTSTREAMS( 'attributedTo' ), postsRdf.literal( webId.id ) );
+    postsRdf.add( id, ACTSTREAMS( 'attributedTo' ), postsRdf.literal( webId['@id'] ) );
     postsRdf.add( id, ACTSTREAMS( 'summary' ), postsRdf.literal( newPost.summary ) );
     postsRdf.add( id, ACTSTREAMS( 'published' ), postsRdf.literal( newPost.published ) );
     postsRdf.add( id, ACTSTREAMS( 'content' ), postsRdf.literal( newPost.content ) );
@@ -102,7 +102,7 @@ const fetchWallWebId = async ( webIdUri ) =>
 
 const fetchWallPosts = async ( wallWebId ) =>
 {
-    const postsMd = await safeApp.mutableData.newPublic( wallWebId.posts.xorName.split(','), parseInt( wallWebId.posts.typeTag ) );
+    const postsMd = await safeApp.mutableData.newPublic( wallWebId.posts.xorName, wallWebId.posts.typeTag );
     const entries = await postsMd.getEntries();
     const list = await entries.listEntries();
     list.forEach( ( e ) =>
@@ -112,8 +112,7 @@ const fetchWallPosts = async ( wallWebId ) =>
 
     const postsRdf = postsMd.emulateAs( 'rdf' );
     await postsRdf.nowOrWhenFetched();
-
-    await postsRdf.setId( 'sadsadsads' );
+    postsRdf.setId(wallWebId['@id'])
     const serial = await postsRdf.serialise();
     console.log( 'Target WebID doc:', serial );
 
@@ -167,17 +166,30 @@ export const {
     },
     [TYPES.SET_CURRENT_USER] : async ( webId ) =>
     {
-        // if (!safeApp || !safeApp.isNetStateConnected()) return;
-        await connect();
-        // const webId = { ...user };
-        // const webId = await fetchWallWebId( webId["@id"] ); // FIXME: remove this
-        console.log( 'Getting info from Peruse for user:', webId  );
-        const wallWebId = webId;
+/*        webId = {
+          "@id": "safe://mywebid.gabriel#me",
+          "@type": "http://xmlns.com/foaf/0.1/Person",
+          image: "data:image/jpeg;base64",
+          name: "gabriel",
+          nick: "bochaco",
+          website: "safe://bla.com",
+          posts: {
+            "@id": "safe://asdadadsad/posts",
+            "@type": "http://safenetwork.org/safevocab/Posts",
+            title: "Container for social apps posts",
+            typeTag: "303030",
+            xorName: "194,220,162,140,187,247,45,216,106,62,249,77,72,51,146,34,78,83,55,19,193,179,16,107,81,10,186,242,253,50,167,111"
+          }
+        };*/
 
+        console.log( 'Getting info from Peruse for user:', webId  );
+        await connect();
+        webId.posts.xorName = webId.posts.xorName.split(',');
+        webId.posts.typeTag = parseInt( webId.posts.typeTag );
+        const wallWebId = { ...webId };
         const posts = await fetchWallPosts( wallWebId ); // TODO: trigger the FETCH_POSTS actions instead
-        return {
-            webId,
-        wallWebId, posts };
+
+        return { webId, wallWebId, posts };
     },
     [TYPES.SWITCH_WALL] : async ( wallWebIdUri ) =>
     {
@@ -188,7 +200,7 @@ export const {
     },
     [TYPES.FETCH_POSTS] : async ( wallWebId ) =>
     {
-        console.log( 'Fetch all posts for the wall\'s WebID from the SAFE Network:', wallWebId.id );
+        console.log( 'Fetch all posts for the wall\'s WebID from the SAFE Network:', wallWebId['@id'] );
         const posts = await fetchWallPosts( wallWebId );
         return posts;
     },
