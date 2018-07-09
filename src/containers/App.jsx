@@ -21,8 +21,8 @@ class App extends React.Component
 {
     render = () =>
     {
-        const { user, match, addPost } = this.props;
-        // console.log('app props', this.props)
+        const { user, match, addPost, switchWall } = this.props;
+        //console.log('app props', this.props)
         return (
             <div style={ {
                 maxWidth : '800px',
@@ -39,7 +39,7 @@ class App extends React.Component
                 >
                     <Col span={ 24 }>
                         <Layout className={ styles.appContainer }>
-                            <Route path="/" render={ ( props ) => <HeaderComponent targetWebId={ user.targetWebId } { ...props } /> } />
+                            <Route path="/" render={ ( props ) => <HeaderComponent user={ user } switchWall={ switchWall } { ...props } /> } />
                             <Content>
                                 <Switch>
                                     <Route path="/message" render={ ( props ) => <Messager user={ user } { ...props } /> } />

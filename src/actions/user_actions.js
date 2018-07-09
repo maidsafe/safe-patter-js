@@ -1,171 +1,202 @@
 import { createAction, createActions } from 'redux-actions';
 
 export const TYPES = {
+    CONNECT_TO_NET   : 'CONNECT_TO_NET',
     ADD_POST         : 'ADD_POST',
     SET_CURRENT_USER : 'SET_CURRENT_USER',
-    SEND_MESSAGE     : 'SEND_MESSAGE'
+    SWITCH_WALL      : 'SWITCH_WALL',
+    SEND_MESSAGE     : 'SEND_MESSAGE',
+    FETCH_POSTS      : 'FETCH_POSTS'
 };
 
-// export const {
-//     // addPost :
-//     // , removeBookmark
-//
-// } = createActions( TYPES.ADD_POST );
-// }
+let safeApp = null;
 
-/*cosnt generatePostRdf = (safeApp) =>
+const connect = async () =>
 {
-    const postsContainer =
-      await safeApp.mutableData.newPublic(subdomainLocation, consts.TAG_TYPE_DNS);
+  if (safeApp !== null && safeApp.isNetStateConnected()) return;
 
-    try {
-      await postsContainer.quickSetup();
-    } catch (err) {
-      // If the subdomain container already exists we are then ok
-      if (err.code !== errConst.ERR_DATA_GIVEN_ALREADY_EXISTS.code) {
-        throw err;
-      }
-    }
-
-    const postsRdf = postsContainer.emulateAs('rdf');
-    const vocabs = this.getVocabs(postsRdf);
-}
-*/
-
-const mimicExisingPostContainer = async (targetWebId) =>
-{
-  console.log("MIMICING:", targetWebId)
+  console.log("Connecting to the network...");
   const appInfo = {
     id: "net.maidsafe.example",
-    name: 'Example SAFE App',
+    name: 'Not Twitter SAFE App',
     vendor: 'MaidSafe.net Ltd'
   }
-  const safeApp = await window.safe.initialiseApp(appInfo);
+  safeApp = await window.safe.initialiseApp(appInfo);
   const authReqUri = await safeApp.auth.genAuthUri();
-  console.log("AUTH:", authReqUri)
   const authUri = await window.safe.authorise(authReqUri);
-  console.log("AUTH:", authUri)
-
-
-
-
-
-/*
-  const id = rdf.sym(profile.uri);
-  rdf.setId(profile.uri);
-  const webIdWithHashTag = rdf.sym(`${profile.uri}#me`);
-
-  rdf.add(id, vocabs.RDFS('type'), vocabs.FOAF('PersonalProfileDocument'));
-  rdf.add(id, vocabs.DCTERMS('title'), rdf.literal(`${profile.name}'s profile document`));
-  rdf.add(id, vocabs.FOAF('maker'), webIdWithHashTag);
-  rdf.add(id, vocabs.FOAF('primaryTopic'), webIdWithHashTag);
-
-  rdf.add(webIdWithHashTag, vocabs.RDFS('type'), vocabs.FOAF('Person'));
-  rdf.add(webIdWithHashTag, vocabs.FOAF('name'), rdf.literal(profile.name));
-  rdf.add(webIdWithHashTag, vocabs.FOAF('nick'), rdf.literal(profile.nickname));
-  rdf.add(webIdWithHashTag, vocabs.FOAF('image'), rdf.literal(profile.avatar)); // TODO: this needs to be created as an LDP-NR
-  rdf.add(webIdWithHashTag, vocabs.FOAF('website'), rdf.literal(profile.website));
-
-  const location = await rdf.commit();*/
+  await safeApp.auth.loginFromUri(authUri);
 }
 
-const postNewPost = async (safeApp, webId, targetWebId, newPost) =>
+const postNewPost = async (webId, wallWebId, newPost) =>
 {
-    await mimicExisingPostContainer(targetWebId);
+    // Now we can add the post in the posts container
+    const postsContainer = await safeApp.mutableData.newPublic(wallWebId.posts.xorName, wallWebId.posts.typeTag);
+    const postsRdf = postsContainer.emulateAs('rdf');
 
-    console.log("TARGET WEB ID:", targetWebId)
-    const postRdf = {
-      "@context": "https://www.w3.org/ns/activitystreams",
-      "type": "Note",
-      "actor": webId.id,
-      "summary": newPost.summary,
-      "published": newPost.published,
-      "content": newPost.content
-    };
+    const graphId = `${wallWebId.id}/posts`;
+    newPost.id = `${graphId}/${Math.round(Math.random() * 100000)}`;
+    newPost.actor = webId.id;
+    const id = postsRdf.sym(newPost.id);
+    console.log("GRAPH ID:", graphId)
+    postsRdf.setId(graphId);
 
-    const postsContainer =
-      await safeApp.mutableData.newPublic(targetWebId.posts.xorname, targetWebId.posts.typeTag);
+    const ACTSTREAMS = postsRdf.namespace('https://www.w3.org/ns/activitystreams/');
 
-    try {
-      await postsContainer.quickSetup();
-    } catch (err) {
-      // If the posts container already exists we are then ok
-      if (err.code !== -104) {
-        throw err;
+    postsRdf.add(id, ACTSTREAMS('type'), postsRdf.literal('Note'));
+    postsRdf.add(id, ACTSTREAMS('attributedTo'), postsRdf.literal(webId.id));
+    postsRdf.add(id, ACTSTREAMS('summary'), postsRdf.literal(newPost.summary));
+    postsRdf.add(id, ACTSTREAMS('published'), postsRdf.literal(newPost.published));
+    postsRdf.add(id, ACTSTREAMS('content'), postsRdf.literal(newPost.content));
+
+    const serial = await postsRdf.serialise('application/ld+json');
+    console.log("SERIAL NEW POST:", serial);
+
+    await postsRdf.append();
+
+    //console.log("NEW POST:", newPost);
+    return newPost;
+}
+
+const fetchWallWebId = async (webIdUri) =>
+{
+    const { serviceMd: webIdMd, type } = await safeApp.fetch(webIdUri);
+    if (type !== 'RDF') throw "Service is not mapped to a WebID RDF";
+
+    const postsRdf = webIdMd.emulateAs('rdf');
+    await postsRdf.nowOrWhenFetched();
+
+    //const serial = await postsRdf.serialise();
+    //console.log("Target WebID doc:", serial);
+
+    const FOAF = postsRdf.namespace('http://xmlns.com/foaf/0.1/');
+    let match = postsRdf.statementsMatching(postsRdf.sym(`${webIdUri}#me`), FOAF('name'), undefined);
+    const name = match[0].object.value;
+    match = postsRdf.statementsMatching(postsRdf.sym(`${webIdUri}#me`), FOAF('nick'), undefined);
+    const nick = match[0].object.value;
+    match = postsRdf.statementsMatching(postsRdf.sym(`${webIdUri}#me`), FOAF('website'), undefined);
+    const website = match[0].object.value;
+    match = postsRdf.statementsMatching(postsRdf.sym(`${webIdUri}#me`), FOAF('image'), undefined);
+    const image = match[0].object.value;
+
+    const SAFETERMS = postsRdf.namespace('http://safenetwork.org/safevocab/');
+    match = postsRdf.statementsMatching(postsRdf.sym(`${webIdUri}/posts`), SAFETERMS('xorName'), undefined);
+    const xorName = match[0].object.value.split(',');
+    match = postsRdf.statementsMatching(postsRdf.sym(`${webIdUri}/posts`), SAFETERMS('typeTag'), undefined);
+    const typeTag = parseInt(match[0].object.value);
+
+    const wallWebId = {
+      id: webIdUri,
+      name,
+      nick,
+      website,
+      image,
+      posts: {
+        xorName,
+        typeTag
       }
     }
+    return wallWebId;
+}
 
-    const postsRdf = postsContainer.emulateAs('rdf');
-    //const vocabs = this.getVocabs(postsRdf);
-/*
-    // add to or create subdomain container.
-    const fullUri = `safe://${publicName}`;
-    // TODO: parse the uri to extract the subdomain
+const fetchWallPosts = async (wallWebId) =>
+{
+    const postsMd = await safeApp.mutableData.newPublic(wallWebId.posts.xorName, wallWebId.posts.typeTag);
+    const entries = await postsMd.getEntries();
+    const list = await entries.listEntries();
+    list.forEach((e) => {
+      console.log("LIST:", e.key.toString(), e.value.buf.toString())
+    })
 
-    const id = postsRdf.sym(fullUri);
-    postsRdf.setId(fullUri);
-    const uriWithHashTag = postsRdf.sym(`${fullUri}#it`);
-    const serviceResource = postsRdf.sym(`safe://${subdomain}.${publicName}`);
+    const postsRdf = postsMd.emulateAs('rdf');
+    await postsRdf.nowOrWhenFetched();
 
-    postsRdf.add(id, vocabs.RDFS('type'), vocabs.LDP('DirectContainer'));
-    postsRdf.add(id, vocabs.LDP('membershipResource'), uriWithHashTag);
-    postsRdf.add(id, vocabs.LDP('hasMemberRelation'), vocabs.SAFETERMS('hasService'));
-    postsRdf.add(id, vocabs.DCTERMS('title'), postsRdf.literal(`Services Container for subdomain: '${publicName}'`));
-    postsRdf.add(id, vocabs.DCTERMS('description'), postsRdf.literal('List of public services exposed by a particular subdomain'));
-    postsRdf.add(id, vocabs.LDP('contains'), serviceResource);
+    const serial = await postsRdf.serialise();
+    console.log("Target WebID doc:", serial);
 
-    postsRdf.add(uriWithHashTag, vocabs.RDFS('type'), vocabs.SAFETERMS('Services'));
-    postsRdf.add(uriWithHashTag, vocabs.DCTERMS('title'), postsRdf.literal(`Services available for subdomain: '${publicName}'`));
-    postsRdf.add(uriWithHashTag, vocabs.SAFETERMS('hasService'), serviceResource);
-
-    postsRdf.add(serviceResource, vocabs.RDFS('type'), vocabs.SAFETERMS('Service'));
-    postsRdf.add(serviceResource, vocabs.DCTERMS('title'), postsRdf.literal(`'${subdomain}' service`));
-    postsRdf.add(serviceResource, vocabs.SAFETERMS('xorName'), postsRdf.literal(serviceLocation.name.toString()));
-    postsRdf.add(serviceResource, vocabs.SAFETERMS('typeTag'), postsRdf.literal(serviceLocation.typeTag.toString()));
-
-    const location = postsRdf.commit();
-
-    return location;
-*/
-
-    return new Promise((resolve, reject) => {
-      console.log("NEW POST:", postRdf);
-      resolve(postRdf);
+    const keys = await postsMd.getKeys();
+    let posts = [];
+    const ACTSTREAMS = postsRdf.namespace('https://www.w3.org/ns/activitystreams/');
+    keys.forEach((key) => {
+      //console.log("KEYS:", key.toString())
+      const id = key.toString();
+      let match = postsRdf.statementsMatching(postsRdf.sym(id), ACTSTREAMS('type'), undefined);
+      const type = match[0].object.value;
+      match = postsRdf.statementsMatching(postsRdf.sym(id), ACTSTREAMS('attributedTo'), undefined);
+      const actor = match[0].object.value;
+      match = postsRdf.statementsMatching(postsRdf.sym(id), ACTSTREAMS('published'), undefined);
+      const published = match[0].object.value;
+      match = postsRdf.statementsMatching(postsRdf.sym(id), ACTSTREAMS('summary'), undefined);
+      const summary = match[0].object.value;
+      match = postsRdf.statementsMatching(postsRdf.sym(id), ACTSTREAMS('content'), undefined);
+      const content = match[0].object.value;
+      const post = {
+        id,
+        type,
+        actor,
+        published,
+        summary,
+        content
+      }
+      posts.push(post);
     });
+    return posts;
 }
 
 export const {
+    connectToNet,
     addPost,
     setCurrentUser,
-    sendMessage
+    switchWall,
+    sendMessage,
+    fetchPosts
 } = createActions( {
-    [TYPES.ADD_POST] : async ( webId, targetWebId, post ) =>
+    [TYPES.CONNECT_TO_NET] : async () =>
     {
-        const newPost = await postNewPost(webId, targetWebId, post);
+        await connect();
+    },
+    [TYPES.ADD_POST] : async ( webId, wallWebId, post ) =>
+    {
+        const newPost = await postNewPost(webId, wallWebId, post);
         return newPost;
     },
-    [TYPES.SET_CURRENT_USER] : async ( post ) =>
+    [TYPES.SET_CURRENT_USER] : async ( user ) =>
     {
-        const x = new Promise( ( resolve, reject ) =>
-        {
-            console.log( 'Should do SAFE things for getting User if needed...' );
-            resolve( post );
-        } );
-
-        await x;
-
-        return x;
+        //if (!safeApp || !safeApp.isNetStateConnected()) return;
+        await connect();
+        //const webId = { ...user };
+        const webId = await fetchWallWebId( 'safe://mywebid.gabriel' ); // FIXME: remove this
+        console.log( 'Fetch info from the SAFE Network for user:', webId );
+        const wallWebId = await fetchWallWebId( 'safe://mywebid.gabriel' );
+        const users = {
+          webId,
+          wallWebId
+        }
+        const posts = await fetchWallPosts(wallWebId); // TODO: trigger the FETCH_POSTS actions instead
+        return { users, posts };
     },
-    [TYPES.SEND_MESSAGE] : async ( post ) =>
+    [TYPES.SWITCH_WALL] : async ( wallWebIdUri ) =>
+    {
+        console.log( 'Target user changed. Fetch info from the SAFE Network for user:', wallWebIdUri );
+        const wallWebId = await fetchWallWebId( wallWebIdUri );
+        const posts = await fetchWallPosts(wallWebId); // TODO: trigger the FETCH_POSTS actions instead
+        return { wallWebId, posts };
+    },
+    [TYPES.FETCH_POSTS] : async ( wallWebId ) =>
+    {
+        console.log( 'Fetch all posts for the wall\'s WebID from the SAFE Network:', wallWebId.id );
+        const posts = await fetchWallPosts( wallWebId );
+        return posts;
+    },
+    [TYPES.SEND_MESSAGE] : async ( wallWebIdUri ) =>
     {
         const x = new Promise( ( resolve, reject ) =>
         {
             console.log( 'Should do SAFE things for sending a message...' );
-            resolve( post );
+            resolve( wallWebIdUri );
         } );
 
         await x;
 
         return x;
-    }
+    },
 } );

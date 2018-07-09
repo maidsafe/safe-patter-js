@@ -9,7 +9,6 @@ const { Meta } = Card;
 
 function timeSince( timeStamp )
 {
-console.log("TIME:", timeStamp)
     if ( !timeStamp ) return '';
 
     const timeStampDate = new Date( timeStamp );
@@ -86,6 +85,7 @@ class List extends React.Component
                                             post.actor &&
                                             <div>From: {post.actor}</div>
                                         }
+                                        <div>Post: {post.id}</div>
                                         <Meta description={ theTimeSince } />
                                     </div>
                                     }

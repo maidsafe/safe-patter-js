@@ -23,6 +23,9 @@ function configureStore( initialState )
 
 const store = configureStore( {} );
 
+// Authorise app and connect to the network up front
+//store.dispatch( userActions.connectToNet() );
+
 
 if ( window.webIdEventEmitter )
 {
@@ -31,7 +34,6 @@ if ( window.webIdEventEmitter )
     window.webIdEventEmitter.on( 'update', ( webId ) =>
     {
         store.dispatch( userActions.setCurrentUser( webId ) );
-        console.log( 'WebId has been updated (though not sure what to do with it...)', webId );
     } );
 }
 

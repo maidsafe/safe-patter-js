@@ -30,16 +30,17 @@ const mapPropsToFields = ( { post } ) =>
 class PostForm extends React.Component
 {
     static propTypes = {
-        text   : PropTypes.string,
+        content   : PropTypes.string,
         to     : PropTypes.string
     }
+    
     static defaultProps = {
-        text   : 'Your not tweet here...'
+        content   : 'Your not tweet here...'
     }
 
     handleSubmit = ( e ) =>
     {
-        const { addPost, sendMessage, user } = this.props;
+        const { addPost, user, sendMessage } = this.props;
 
         e.preventDefault();
         this.props.form.validateFields( ( err, values ) =>
@@ -55,7 +56,7 @@ class PostForm extends React.Component
                 {
                     return sendMessage( postToAdd );
                 }
-                addPost( user.webId, user.targetWebId, postToAdd );
+                addPost( user.webId, user.wallWebId, postToAdd );
             }
         } );
     }
