@@ -2,65 +2,65 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Menu } from 'antd';
 import { PATHS } from '../../constants';
-import { Layout, Form, Row, Col, Input, Button } from 'antd';
+import { Layout, Form, Row, Col, Input, Button, Avatar, Card, Switch } from 'antd';
 
 const { Header } = Layout;
 const FormItem = Form.Item;
+const { Meta } = Card;
+const Search = Input.Search;
 
 class HeaderComponent extends React.Component
 {
+
   render = ( ) =>
   {
       const selectedKeys = [];
-      const { user, switchWall, location } = this.props;
-      const webId = user && user.webId;
-      const wallWebId = user && user.wallWebId;
-
-      // set menu as active on load if on a specific path
-      Object.keys( PATHS ).forEach( path =>
-      {
-          location.pathname.startsWith( PATHS[path] ) ? selectedKeys.push( PATHS[path] ) : '';
-      } );
+      const { webId, location } = this.props;
 
       return (
           <div>
-              <h1>Not Twitter</h1>
-              <div>Logged in as: { webId ? `${webId.nick} (${webId['@id']})` : '<not selected>'}</div>
-              <br /><br />
-              <Form layout="vertical" onSubmit={ () => switchWall("safe://mywebid.gabriel") } >
-                <FormItem
-                  label={ wallWebId && wallWebId['@id'] }
-                  extra="Enter a WebID URI to search"
-                >
-                  <Row gutter={8}>
-                    <Col span={8}>
-                      <Input />
-                    </Col>
-                    <Col span={8}>
-                      <Button
-                          htmlType="submit"
-                          type="primary"
-                      >Search
-                      </Button>
-                    </Col>
-                  </Row>
-                </FormItem>
-              </Form>
-              <h3>Name: { wallWebId && wallWebId.name }</h3>
-              <h3>Nickname: { wallWebId && wallWebId.nick }</h3>
-              <h3>Website: { wallWebId && wallWebId.website }</h3>
-              <h3>Image: { wallWebId && wallWebId.image }</h3>
-              <Menu mode="horizontal" selectedKeys={ selectedKeys }>
-                  <Menu.Item key={ PATHS.TIMELINE }>
-                      <NavLink to={ PATHS.TIMELINE } >Home</NavLink>
-                  </Menu.Item>
-                  <Menu.Item key={ PATHS.CREATE }>
-                      <NavLink to={ PATHS.CREATE } >Create</NavLink>
-                  </Menu.Item>
-                  <Menu.Item key={ PATHS.MESSAGE }>
-                      <NavLink to={ PATHS.MESSAGE } >Message</NavLink>
-                  </Menu.Item>
-              </Menu>
+              <Row type='flex' align='bottom' style={{ margin: '10px 0px 20px 0px' }}>
+                  <Col span={ 15 }>
+                    <Row>
+                      <h1>Not Twitter</h1>
+                    </Row>
+                    <Row>
+                      <Search
+                         placeholder="enter a WebID URI to search"
+                         onSearch={ this.props.switchWall }
+                         style={{ width: 270 }}
+                         enterButton="Search"
+                         size="small"
+                       />
+                    </Row>
+                  </Col>
+                  <Col span={ 9 }>
+                      <Row style={{ padding: 0 }}>
+                          <Col span={ 17 }>
+                            <Card
+                              style={{ width: 300 }}
+                            >
+                              <Meta
+                                avatar={ (webId && webId.image) ? <Avatar src={ webId.image } /> : '' }
+                                title={ (webId && webId.nick) ? webId.nick : '<Not signed>' }
+                                description={ (webId && webId['@id']) ? webId['@id'] : '' }
+                              />
+                            </Card>
+                          </Col>
+                          <Col span={ 7 } style={{ paddingTop: '5px' }}>
+                            { webId ? (
+                              <Button size='small' type='danger' onClick={ this.props.downgradeConn }>
+                                Sign out
+                              </Button>
+                            ) : (
+                              <Button size='small' type='primary' onClick={ this.props.authorise }>
+                                Sign in
+                              </Button>
+                            )}
+                          </Col>
+                      </Row>
+                  </Col>
+              </Row>
           </div>
       );
   };

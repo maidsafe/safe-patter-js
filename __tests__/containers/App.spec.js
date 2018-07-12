@@ -60,7 +60,7 @@ describe( 'App', () =>
 
     describe( '/', () =>
     {
-        it( 'should have a List (as it redirects to timeline)', () =>
+        it( 'should have a PostsList (as it redirects to timeline)', () =>
         {
             props = {
                 ...props
@@ -70,7 +70,7 @@ describe( 'App', () =>
                 <App { ...props } />
             </MemoryRouter> );
 
-            expect( wrapper.find( 'List' ).length ).toBe( 1 );
+            expect( wrapper.find( 'PostsList' ).length ).toBe( 1 );
         } );
 
         it( 'should have a no form', () =>
@@ -88,7 +88,7 @@ describe( 'App', () =>
 
     describe( '/timeline', () =>
     {
-        it( 'should have a List', () =>
+        it( 'should have a PostsList', () =>
         {
             props = {
                 ...props
@@ -98,7 +98,7 @@ describe( 'App', () =>
                 <App { ...props } />
             </MemoryRouter> );
 
-            expect( wrapper.find( 'List' ).length ).toBe( 1 );
+            expect( wrapper.find( 'PostsList' ).length ).toBe( 1 );
         } );
     } );
 

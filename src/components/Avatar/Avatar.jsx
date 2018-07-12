@@ -4,7 +4,7 @@ import { Upload, message } from 'antd';
 function getBase64( img, callback )
 {
     const reader = new FileReader();
-    reader.addEventListener( 'load', () => callback( reader.result ) );
+    reader.addEventPostsListener( 'load', () => callback( reader.result ) );
     reader.readAsDataURL( img );
 }
 
@@ -33,7 +33,7 @@ class Avatar extends React.Component
       loading : false,
   };
 
-  handleChange = ( info, fileList, event ) =>
+  handleChange = ( info, filePostsList, event ) =>
   {
       console.log( 'handling file change, ', info );
       // if ( info.file.status === 'uploading' )
@@ -75,7 +75,7 @@ class Avatar extends React.Component
               name="avatar"
               listType="picture-card"
               className="avatar-uploader"
-              showUploadList={ false }
+              showUploadPostsList={ false }
               // action="http://localhost:3984/dummy/upload"
               beforeUpload={ beforeUpload }
               onChange={ this.handleChange }

@@ -15,11 +15,7 @@ const initialState = {
       website: '',
       image: ''
     },
-    posts : [
-    ],
-    inbox : [
-    ]
-
+    posts : []
 };
 
 export default ( state = initialState, action ) =>
@@ -28,6 +24,14 @@ export default ( state = initialState, action ) =>
 
     switch ( action.type )
     {
+        case TYPES.AUTHORISE:
+        {
+            return { ...state, webId: payload };
+        }
+        case TYPES.DOWNGRADE_CONN:
+        {
+            return { ...state, webId: null };
+        }
         case TYPES.SET_CURRENT_USER:
         {
             return {
@@ -46,6 +50,7 @@ export default ( state = initialState, action ) =>
         }
         case TYPES.SWITCH_WALL:
         {
+          if (payload)
             return {
               ...state,
               wallWebId: payload.wallWebId,
@@ -54,7 +59,7 @@ export default ( state = initialState, action ) =>
         }
         case TYPES.FETCH_POSTS:
         {
-            console.log("Let's ffully update list of posts")
+            console.log("Let's fully update list of posts")
             return { ...state, posts: payload };
         }
 

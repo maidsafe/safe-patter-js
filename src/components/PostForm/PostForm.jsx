@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button, Row, Col } from 'antd';
 import Avatar from '../Avatar/Avatar';
 
 const FormItem = Form.Item;
@@ -29,18 +29,9 @@ const mapPropsToFields = ( { post } ) =>
  */
 class PostForm extends React.Component
 {
-    static propTypes = {
-        content   : PropTypes.string,
-        to     : PropTypes.string
-    }
-    
-    static defaultProps = {
-        content   : 'Your not tweet here...'
-    }
-
     handleSubmit = ( e ) =>
     {
-        const { addPost, user, sendMessage } = this.props;
+        const { addPost, users, sendMessage } = this.props;
 
         e.preventDefault();
         this.props.form.validateFields( ( err, values ) =>
@@ -52,63 +43,48 @@ class PostForm extends React.Component
                 postToAdd.published = nowTimestamp.toISOString();
 
                 console.log( 'Received values of form: ', values );
-                if( this.recipientUnknown )
-                {
-                    return sendMessage( postToAdd );
-                }
-                addPost( user.webId, user.wallWebId, postToAdd );
+                addPost( users.webId, users.wallWebId, postToAdd );
             }
         } );
     }
-
 
     render = ( ) =>
     {
         const { getFieldDecorator } = this.props.form;
 
-        const { to, match } = this.props;
-
-        this.recipientUnknown = !to && match.url.startsWith( '/message' );
-
         return (
-            <Form layout="vertical" onSubmit={ this.handleSubmit } >
-                {
-                    this.recipientUnknown &&
-                        <FormItem label="To" >
-                            {getFieldDecorator( 'to', {
-                                rules : [{ required: true, message: 'Please select someone to message.' }],
-                            } )( <Input
-                                // and icons removed as attempts to access a font online
-                                // prefix={ <Icon type="user" style={ { color: 'rgba(0,0,0,.25)' } } /> }
-                                placeholder="Someone super important..."
-                            /> )}
-                        </FormItem>
-
-                }
-                <FormItem label="New Post" >
-                    {getFieldDecorator( 'summary', {
-                        rules : [{ required: true, message: 'Please input a title' }],
-                    } )( <Input
-                        // and icons removed as attempts to access a font online
-                        // prefix={ <Icon type="user" style={ { color: 'rgba(0,0,0,.25)' } } /> }
-                        placeholder="A summary..."
-                    /> )}
-                    {getFieldDecorator( 'content', {
-                        rules : [{ required: true, message: 'Please input some text!' }],
-                    } )( <Input.TextArea
-                        // and icons removed as attempts to access a font online
-                        // prefix={ <Icon type="user" style={ { color: 'rgba(0,0,0,.25)' } } /> }
-                        placeholder="Something super important..."
-                    /> )}
-                </FormItem>
-                {/* <Form.Item type="input" label="inbox">
-                        <Input defaultValue={ id.inbox } />
-                    </Form.Item> */}
-                <Button
-                    htmlType="submit"
-                    type="primary"
-                >Post
-                </Button>
+            <Form layout="vertical" onSubmit={ this.handleSubmit } style={{ border: '1px solid lightgray', padding: '5px', marginBottom: '30px'}}>
+                <Row>
+                    <FormItem style={{ margin: 0 }}>
+                        {getFieldDecorator( 'summary', {
+                            rules : [{ required: true, message: 'Please enter a summary' }],
+                        } )( <Input disabled={ !this.props.users.webId }
+                            // and icons removed as attempts to access a font online
+                            // prefix={ <Icon type="user" style={ { color: 'rgba(0,0,0,.25)' } } /> }
+                            placeholder="A summary..."
+                        /> )}
+                    </FormItem>
+                    <FormItem style={{ margin: 0 }}>
+                        {getFieldDecorator( 'content', {
+                            rules : [{ required: true, message: 'Please enter some text!' }],
+                        } )( <Input.TextArea disabled={ !this.props.users.webId }
+                            // and icons removed as attempts to access a font online
+                            // prefix={ <Icon type="user" style={ { color: 'rgba(0,0,0,.25)' } } /> }
+                            placeholder="Something super important..."
+                        /> )}
+                    </FormItem>
+                </Row>
+                <Row>
+                  <Col style={{ textAlign: 'right' }}>
+                    <Button
+                        htmlType="submit"
+                        type="primary"
+                        disabled={ !this.props.users.webId }
+                    >
+                      Post
+                    </Button>
+                  </Col>
+                </Row>
             </Form>
         );
     }

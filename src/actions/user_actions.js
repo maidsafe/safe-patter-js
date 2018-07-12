@@ -1,31 +1,44 @@
 import { createAction, createActions } from 'redux-actions';
 
 export const TYPES = {
-    CONNECT_TO_NET   : 'CONNECT_TO_NET',
+    AUTHORISE        : 'AUTHORISE',
+    DOWNGRADE_CONN   : 'DOWNGRADE_CONN',
     ADD_POST         : 'ADD_POST',
     SET_CURRENT_USER : 'SET_CURRENT_USER',
     SWITCH_WALL      : 'SWITCH_WALL',
-    SEND_MESSAGE     : 'SEND_MESSAGE',
     FETCH_POSTS      : 'FETCH_POSTS'
 };
 
 let safeApp = null;
+const appInfo = {
+    id     : 'net.maidsafe.example',
+    name   : 'Not Twitter SAFE App',
+    vendor : 'MaidSafe.net Ltd'
+};
+
+const unregisteredConn = async () => {
+    const connReqUri = await safeApp.auth.genConnUri();
+    const connUri = await window.safe.authorise( connReqUri );
+    await safeApp.auth.loginFromUri( connUri );
+}
 
 const connect = async () =>
 {
     if ( safeApp !== null && safeApp.isNetStateConnected() ) return;
 
     console.log( 'Connecting to the network...' );
-    const appInfo = {
-        id     : 'net.maidsafe.example',
-        name   : 'Not Twitter SAFE App',
-        vendor : 'MaidSafe.net Ltd'
-    };
-
     safeApp = await window.safe.initialiseApp( appInfo );
+    await unregisteredConn();
+    console.log( 'Read-only connection created...' );
+};
+
+const authoriseApp = async () =>
+{
+    console.log( 'Authorising application...' );
     const authReqUri = await safeApp.auth.genAuthUri();
     const authUri = await window.safe.authorise( authReqUri );
     await safeApp.auth.loginFromUri( authUri );
+    console.log("Signed in...")
 };
 
 const postNewPost = async ( webId, wallWebId, newPost ) =>
@@ -38,6 +51,7 @@ const postNewPost = async ( webId, wallWebId, newPost ) =>
     const graphId = `${wallWebId['@id']}/posts`;
     newPost.id = `${graphId}/${Math.round( Math.random() * 100000 )}`;
     newPost.actor = webId['@id'];
+    newPost.actorImage = webId.image;
     const id = postsRdf.sym( newPost.id );
     console.log( 'GRAPH ID:', graphId );
     postsRdf.setId( graphId );
@@ -51,7 +65,7 @@ const postNewPost = async ( webId, wallWebId, newPost ) =>
     postsRdf.add( id, ACTSTREAMS( 'content' ), postsRdf.literal( newPost.content ) );
 
     const serial = await postsRdf.serialise( 'application/ld+json' );
-    console.log( 'SERIAL NEW POST:', serial );
+    console.log( 'JSON-LD NEW POST:', serial );
 
     await postsRdf.append();
 
@@ -61,33 +75,34 @@ const postNewPost = async ( webId, wallWebId, newPost ) =>
 
 const fetchWallWebId = async ( webIdUri ) =>
 {
+    console.log("FETCH WEBID:", webIdUri)
     const { serviceMd: webIdMd, type } = await safeApp.fetch( webIdUri );
     if ( type !== 'RDF' ) throw 'Service is not mapped to a WebID RDF';
 
-    const postsRdf = webIdMd.emulateAs( 'rdf' );
-    await postsRdf.nowOrWhenFetched();
+    const webIdRdf = webIdMd.emulateAs( 'rdf' );
+    await webIdRdf.nowOrWhenFetched();
 
-    // const serial = await postsRdf.serialise();
+    // const serial = await webIdRdf.serialise();
     // console.log("Target WebID doc:", serial);
 
-    const FOAF = postsRdf.namespace( 'http://xmlns.com/foaf/0.1/' );
-    let match = postsRdf.statementsMatching( postsRdf.sym( `${webIdUri}#me` ), FOAF( 'name' ), undefined );
+    const FOAF = webIdRdf.namespace( 'http://xmlns.com/foaf/0.1/' );
+    let match = webIdRdf.statementsMatching( webIdRdf.sym( `${webIdUri}#me` ), FOAF( 'name' ), undefined );
     const name = match[0].object.value;
-    match = postsRdf.statementsMatching( postsRdf.sym( `${webIdUri}#me` ), FOAF( 'nick' ), undefined );
+    match = webIdRdf.statementsMatching( webIdRdf.sym( `${webIdUri}#me` ), FOAF( 'nick' ), undefined );
     const nick = match[0].object.value;
-    match = postsRdf.statementsMatching( postsRdf.sym( `${webIdUri}#me` ), FOAF( 'website' ), undefined );
+    match = webIdRdf.statementsMatching( webIdRdf.sym( `${webIdUri}#me` ), FOAF( 'website' ), undefined );
     const website = match[0].object.value;
-    match = postsRdf.statementsMatching( postsRdf.sym( `${webIdUri}#me` ), FOAF( 'image' ), undefined );
+    match = webIdRdf.statementsMatching( webIdRdf.sym( `${webIdUri}#me` ), FOAF( 'image' ), undefined );
     const image = match[0].object.value;
 
-    const SAFETERMS = postsRdf.namespace( 'http://safenetwork.org/safevocab/' );
-    match = postsRdf.statementsMatching( postsRdf.sym( `${webIdUri}/posts` ), SAFETERMS( 'xorName' ), undefined );
+    const SAFETERMS = webIdRdf.namespace( 'http://safenetwork.org/safevocab/' );
+    match = webIdRdf.statementsMatching( webIdRdf.sym( `${webIdUri}/posts` ), SAFETERMS( 'xorName' ), undefined );
     const xorName = match[0].object.value.split( ',' );
-    match = postsRdf.statementsMatching( postsRdf.sym( `${webIdUri}/posts` ), SAFETERMS( 'typeTag' ), undefined );
+    match = webIdRdf.statementsMatching( webIdRdf.sym( `${webIdUri}/posts` ), SAFETERMS( 'typeTag' ), undefined );
     const typeTag = parseInt( match[0].object.value );
 
     const wallWebId = {
-        id    : webIdUri,
+        "@id": webIdUri,
         name,
         nick,
         website,
@@ -100,64 +115,96 @@ const fetchWallWebId = async ( webIdUri ) =>
     return wallWebId;
 };
 
+const fetchWebIdImage = async ( webIdUri ) =>
+{
+    console.log("FETCH WEBID IMAGE:", webIdUri)
+    const { serviceMd: webIdMd, type } = await safeApp.fetch( webIdUri );
+    if ( type !== 'RDF' ) throw 'Service is not mapped to a WebID RDF';
+
+    const webIdRdf = webIdMd.emulateAs( 'rdf' );
+    await webIdRdf.nowOrWhenFetched();
+
+    const FOAF = webIdRdf.namespace( 'http://xmlns.com/foaf/0.1/' );
+    const match = webIdRdf.statementsMatching( webIdRdf.sym( `${webIdUri}` ), FOAF( 'image' ), undefined );
+    const image = match[0].object.value;
+    return image;
+};
+
 const fetchWallPosts = async ( wallWebId ) =>
 {
     const postsMd = await safeApp.mutableData.newPublic( wallWebId.posts.xorName, wallWebId.posts.typeTag );
-    const entries = await postsMd.getEntries();
-    const list = await entries.listEntries();
-    list.forEach( ( e ) =>
-    {
-        console.log( 'LIST:', e.key.toString(), e.value.buf.toString() );
-    } );
-
     const postsRdf = postsMd.emulateAs( 'rdf' );
     await postsRdf.nowOrWhenFetched();
     postsRdf.setId(wallWebId['@id'])
     const serial = await postsRdf.serialise();
-    console.log( 'Target WebID doc:', serial );
+    console.log( "Wall's WebID profile doc:", serial );
 
     const keys = await postsMd.getKeys();
     const posts = [];
+    const images = {};
 
     const ACTSTREAMS = postsRdf.namespace( 'https://www.w3.org/ns/activitystreams/' );
-    keys.forEach( ( key ) =>
-    {
-        // console.log("KEYS:", key.toString())
-        const id = key.toString();
-        let match = postsRdf.statementsMatching( postsRdf.sym( id ), ACTSTREAMS( 'type' ), undefined );
-        const type = match[0].object.value;
-        match = postsRdf.statementsMatching( postsRdf.sym( id ), ACTSTREAMS( 'attributedTo' ), undefined );
-        const actor = match[0].object.value;
-        match = postsRdf.statementsMatching( postsRdf.sym( id ), ACTSTREAMS( 'published' ), undefined );
-        const published = match[0].object.value;
-        match = postsRdf.statementsMatching( postsRdf.sym( id ), ACTSTREAMS( 'summary' ), undefined );
-        const summary = match[0].object.value;
-        match = postsRdf.statementsMatching( postsRdf.sym( id ), ACTSTREAMS( 'content' ), undefined );
-        const content = match[0].object.value;
-        const post = {
-            id,
-            type,
-            actor,
-            published,
-            summary,
-            content
-        };
-        posts.push( post );
-    } );
-    return posts;
+    return Promise.all(keys.map( ( key ) => new Promise((resolve, reject) => {
+          const id = key.toString();
+          let match = postsRdf.statementsMatching( postsRdf.sym( id ), ACTSTREAMS( 'type' ), undefined );
+          const type = match[0].object.value;
+          match = postsRdf.statementsMatching( postsRdf.sym( id ), ACTSTREAMS( 'attributedTo' ), undefined );
+          const actor = match[0].object.value;
+          match = postsRdf.statementsMatching( postsRdf.sym( id ), ACTSTREAMS( 'published' ), undefined );
+          const published = match[0].object.value;
+          match = postsRdf.statementsMatching( postsRdf.sym( id ), ACTSTREAMS( 'summary' ), undefined );
+          const summary = match[0].object.value;
+          match = postsRdf.statementsMatching( postsRdf.sym( id ), ACTSTREAMS( 'content' ), undefined );
+          const content = match[0].object.value;
+          const post = {
+              id,
+              type,
+              actor,
+              published,
+              summary,
+              content
+          };
+
+          if (images[actor]) {
+              post.actorImage = images[actor]
+              posts.push(post);
+              return resolve();
+          }
+
+          return fetchWebIdImage(actor)
+            .then((actorImage) => {
+                images[actor] = actorImage;
+                post.actorImage = actorImage;
+                posts.push(post);
+                return resolve();
+            });
+        })
+    ))
+    .then(() => {return posts});
 };
 
 export const {
-    connectToNet,
+    authorise,
+    downgradeConn,
     addPost,
     setCurrentUser,
     switchWall,
-    sendMessage,
     fetchPosts
 } = createActions( {
-    [TYPES.CONNECT_TO_NET] : async () =>
+    [TYPES.AUTHORISE] : async () =>
     {
-        await connect();
+        await authoriseApp();
+        console.log( 'Getting info of current WebID:', webId  );
+        const webId = { ...window.currentWebId };
+        webId.posts = { ...window.currentWebId.posts };
+        webId.posts.xorName = webId.posts.xorName.split(',');
+        webId.posts.typeTag = parseInt( webId.posts.typeTag );
+
+        return webId;
+    },
+    [TYPES.DOWNGRADE_CONN] : async () =>
+    {
+        await unregisteredConn();
     },
     [TYPES.ADD_POST] : async ( webId, wallWebId, post ) =>
     {
@@ -166,36 +213,23 @@ export const {
     },
     [TYPES.SET_CURRENT_USER] : async ( webId ) =>
     {
-/*        webId = {
-          "@id": "safe://mywebid.gabriel#me",
-          "@type": "http://xmlns.com/foaf/0.1/Person",
-          image: "data:image/jpeg;base64",
-          name: "gabriel",
-          nick: "bochaco",
-          website: "safe://bla.com",
-          posts: {
-            "@id": "safe://asdadadsad/posts",
-            "@type": "http://safenetwork.org/safevocab/Posts",
-            title: "Container for social apps posts",
-            typeTag: "303030",
-            xorName: "194,220,162,140,187,247,45,216,106,62,249,77,72,51,146,34,78,83,55,19,193,179,16,107,81,10,186,242,253,50,167,111"
-          }
-        };*/
-
         console.log( 'Getting info from Peruse for user:', webId  );
         await connect();
-        webId.posts.xorName = webId.posts.xorName.split(',');
-        webId.posts.typeTag = parseInt( webId.posts.typeTag );
-        const wallWebId = { ...webId };
-        const posts = await fetchWallPosts( wallWebId ); // TODO: trigger the FETCH_POSTS actions instead
 
-        return { webId, wallWebId, posts };
+        const wallWebId = { ...webId };
+        wallWebId.posts = { ...webId.posts };
+        wallWebId.posts.xorName = webId.posts.xorName.split(',');
+        wallWebId.posts.typeTag = parseInt( webId.posts.typeTag );
+
+        const posts = await fetchWallPosts( wallWebId );
+
+        return { webId: null, wallWebId, posts };
     },
     [TYPES.SWITCH_WALL] : async ( wallWebIdUri ) =>
     {
-        console.log( 'Target user changed. Fetch info from the SAFE Network for user:', wallWebIdUri );
+        console.log( "Wall's user changed. Fetch info from the SAFE Network for user:", wallWebIdUri );
         const wallWebId = await fetchWallWebId( wallWebIdUri );
-        const posts = await fetchWallPosts( wallWebId ); // TODO: trigger the FETCH_POSTS actions instead
+        const posts = await fetchWallPosts( wallWebId );
         return { wallWebId, posts };
     },
     [TYPES.FETCH_POSTS] : async ( wallWebId ) =>
@@ -203,17 +237,5 @@ export const {
         console.log( 'Fetch all posts for the wall\'s WebID from the SAFE Network:', wallWebId['@id'] );
         const posts = await fetchWallPosts( wallWebId );
         return posts;
-    },
-    [TYPES.SEND_MESSAGE] : async ( wallWebIdUri ) =>
-    {
-        const x = new Promise( ( resolve, reject ) =>
-        {
-            console.log( 'Should do SAFE things for sending a message...' );
-            resolve( wallWebIdUri );
-        } );
-
-        await x;
-
-        return x;
-    },
+    }
 } );

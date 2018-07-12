@@ -8,21 +8,22 @@ import * as userActions from '../actions/user_actions';
 import styles from './global.css';
 import HeaderComponent from '../components/Header/Header';
 import Messager from '../components/Messager/Messager';
-import List from '../components/List/List';
-
+import PostsList from '../components/PostsList/PostsList';
 import PostForm from '../components/PostForm/PostForm';
 
 import { Layout, Row, Col } from 'antd';
 
-const { Content } = Layout;
-
+const { Header, Sider, Content, Footer } = Layout;
 
 class App extends React.Component
 {
     render = () =>
     {
-        const { user, match, addPost, switchWall } = this.props;
-        //console.log('app props', this.props)
+        const { users, match, addPost, switchWall, authorise, downgradeConn } = this.props;
+        const webId = users && users.webId;
+        const wallWebId = users && users.wallWebId;
+        const avatar = wallWebId && wallWebId.image;
+
         return (
             <div style={ {
                 maxWidth : '800px',
@@ -30,31 +31,46 @@ class App extends React.Component
                 margin   : '0 auto'
             } }
             >
-                <Row
-                    gutter={ {
-                        xs : 8, sm : 16, md : 24, lg : 32
-                    } }
-                    type="flex"
-                    justify="center"
-                >
-                    <Col span={ 24 }>
-                        <Layout className={ styles.appContainer }>
-                            <Route path="/" render={ ( props ) => <HeaderComponent user={ user } switchWall={ switchWall } { ...props } /> } />
-                            <Content>
-                                <Switch>
-                                    <Route path="/message" render={ ( props ) => <Messager user={ user } { ...props } /> } />
-                                    <Route path="/create/new" render={ ( props ) => <PostForm user={ user } addPost={ addPost } { ...props } /> } />
-                                    <Route path="/create" render={ ( props ) => <Redirect to="/create/new" /> } />
-                                    <Route path="/timeline" render={ () => <List posts={ user.posts } inbox={ user.inbox } name={ user.name } /> } />
-                                    <Route path="/" render={ () => <Redirect to="/timeline" /> } />
 
-                                </Switch>
-                            </Content>
-                        </Layout>
-
-                    </Col>
+                <Row>
+                  <Col span={ 24 }>
+                    <HeaderComponent
+                        webId={ webId }
+                        switchWall={ switchWall }
+                        auhorise={ authorise }
+                        downgradeConn={ downgradeConn }
+                        { ...this.props }
+                    />
+                  </Col>
                 </Row>
-
+                { wallWebId ? (
+                  <Row gutter={ 48 }>
+                    <Col span={ 8 }>
+                      <img src={ wallWebId && wallWebId.image } width="170" /><br/><br/>
+                      <h2><b>{ wallWebId && wallWebId.nick }</b></h2>
+                      <h3><i>{ wallWebId && wallWebId['@id'] }</i></h3>
+                      <br/>
+                      <h4><b>Name:</b> { wallWebId && wallWebId.name }</h4>
+                      <h4><b>Website:</b> { wallWebId && wallWebId.website }</h4>
+                    </Col>
+                    <Col span={ 16 }>
+                      <Row>
+                        <Col span={ 24 } >
+                          <PostForm users={ users } addPost={ addPost } { ...this.props } />
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col span={ 24 } >
+                          <PostsList posts={ users.posts } name={ wallWebId && wallWebId.nick } { ...this.props } />
+                        </Col>
+                      </Row>
+                    </Col>
+                  </Row>
+                ) : (
+                  <p text-align='center'>
+                    No WebID selected
+                  </p>
+                )}
             </div>
         );
     }
@@ -73,7 +89,7 @@ function mapDispatchToProps( dispatch )
 function mapStateToProps( state )
 {
     return {
-        user : state.user
+        users : state.users
     };
 }
 export default withRouter( connect( mapStateToProps, mapDispatchToProps )( App ) );
