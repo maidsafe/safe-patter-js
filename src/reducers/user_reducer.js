@@ -2,20 +2,24 @@ import { TYPES } from '../actions/user_actions';
 
 const initialState = {
     webId : {
-      id: '',
-      name: '',
-      nick: '',
-      website: '',
-      image: ''
+      '@id': '',
+      '#me': {
+        name: '',
+        nick: '',
+        website: '',
+        image: ''
+      }
     },
     wallWebId : {
-      id: '',
-      name: '',
-      nick: '',
-      website: '',
-      image: ''
+      '@id': '',
+      '#me': {
+        name: '',
+        nick: '',
+        website: '',
+        image: ''
+      }
     },
-    posts : []
+    posts : [],
 };
 
 export default ( state = initialState, action ) =>
@@ -50,11 +54,12 @@ export default ( state = initialState, action ) =>
         }
         case TYPES.SWITCH_WALL:
         {
-          if (payload)
+            if (payload.message) return { ...state };
+
             return {
-              ...state,
-              wallWebId: payload.wallWebId,
-              posts: payload.posts
+                ...state,
+                wallWebId: payload.wallWebId,
+                posts: payload.posts
             };
         }
         case TYPES.FETCH_POSTS:

@@ -22,7 +22,12 @@ class App extends React.Component
         const { users, match, addPost, switchWall, authorise, downgradeConn } = this.props;
         const webId = users && users.webId;
         const wallWebId = users && users.wallWebId;
-        const avatar = wallWebId && wallWebId.image;
+
+        const image = wallWebId && wallWebId['#me'].image;
+        const nick = wallWebId && wallWebId['#me'].nick;
+        const id = wallWebId && wallWebId['#me']['@id'];
+        const name = wallWebId && wallWebId['#me'].name
+        const website = wallWebId && wallWebId['#me'].website
 
         return (
             <div style={ {
@@ -46,12 +51,12 @@ class App extends React.Component
                 { wallWebId ? (
                   <Row gutter={ 48 }>
                     <Col span={ 8 }>
-                      <img src={ wallWebId && wallWebId.image } width="170" /><br/><br/>
-                      <h2><b>{ wallWebId && wallWebId.nick }</b></h2>
-                      <h3><i>{ wallWebId && wallWebId['@id'] }</i></h3>
+                      <img width="160" src={ image } /><br/><br/>
+                      <h2><b>{ nick }</b></h2>
+                      <h3><i>{ id }</i></h3>
                       <br/>
-                      <h4><b>Name:</b> { wallWebId && wallWebId.name }</h4>
-                      <h4><b>Website:</b> { wallWebId && wallWebId.website }</h4>
+                      <h4><b>Name:</b> { name }</h4>
+                      <h4><b>Website:</b> { website }</h4>
                     </Col>
                     <Col span={ 16 }>
                       <Row>
@@ -61,14 +66,14 @@ class App extends React.Component
                       </Row>
                       <Row>
                         <Col span={ 24 } >
-                          <PostsList posts={ users.posts } name={ wallWebId && wallWebId.nick } { ...this.props } />
+                          <PostsList posts={ users.posts } name={ nick } { ...this.props } />
                         </Col>
                       </Row>
                     </Col>
                   </Row>
                 ) : (
                   <p text-align='center'>
-                    No WebID selected
+                    No WebID selected. Please use the search input above or select a WebID from the browser
                   </p>
                 )}
             </div>

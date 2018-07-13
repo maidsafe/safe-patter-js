@@ -3,14 +3,6 @@ import PropTypes from 'prop-types';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
 import PostForm from '../PostForm/PostForm';
-// {
-//     name: 'Josh1',
-//     img : 'base6444',
-//     inbox: {},
-//     website: 'safe://some.tester',
-//     pk : {}
-// }
-
 
 export default class Messager extends React.Component
 {

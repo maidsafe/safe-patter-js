@@ -70,8 +70,15 @@ class PostsList extends React.Component
                     renderItem={item => (
                       <List.Item>
                         <List.Item.Meta
-                          avatar={ item.actorImage ? <Avatar src={item.actorImage} /> : '' }
-                          title={item.actor}
+                          avatar={ item.actorImage ?
+                            <Avatar size='small' src={item.actorImage} />
+                            :
+                            <Avatar style={{ backgroundColor: 'gray', verticalAlign: 'middle' }} >
+                              {item.actorNick.substring(0, 1).toUpperCase()}
+                            </Avatar>
+                          }
+                          title={
+                            <div><b>{item.actorNick}</b> <i>(<a target="_blank" style={{ color: 'MidnightBlue' }} href={item.actor}>{item.actor}</a>)</i></div>}
                           description={
                             <div>
                               <Row>

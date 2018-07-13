@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Menu } from 'antd';
 import { PATHS } from '../../constants';
-import { Layout, Form, Row, Col, Input, Button, Avatar, Card, Switch } from 'antd';
+import { Layout, Form, Row, Col, Input, Button, Avatar, Card, Switch, notification } from 'antd';
 
 const { Header } = Layout;
 const FormItem = Form.Item;
@@ -11,11 +11,29 @@ const Search = Input.Search;
 
 class HeaderComponent extends React.Component
 {
+  handleSearch = async ( webIdUri ) =>
+  {
+      try {
+          await this.props.switchWall(`safe://${webIdUri}`);
+      } catch (err) {
+          console.log("WebID entered not found:", err);
+          //FIXME: we need to include the icons files with the site for this to work
+          /*notification.open({
+              message: 'WebID entered not found',
+              description: 'Verify that the WebID entered is correct and try again',
+              duration: 5,
+          });*/
+      }
+  }
 
   render = ( ) =>
   {
       const selectedKeys = [];
       const { webId, location } = this.props;
+
+      const image = webId && webId['#me'].image;
+      const nick = webId && webId['#me'].nick;
+      const id = webId && webId['#me']['@id'];
 
       return (
           <div>
@@ -26,9 +44,10 @@ class HeaderComponent extends React.Component
                     </Row>
                     <Row>
                       <Search
+                         addonBefore="safe://"
                          placeholder="enter a WebID URI to search"
-                         onSearch={ this.props.switchWall }
-                         style={{ width: 270 }}
+                         onSearch={ this.handleSearch }
+                         style={{ width: 330 }}
                          enterButton="Search"
                          size="small"
                        />
@@ -41,9 +60,9 @@ class HeaderComponent extends React.Component
                               style={{ width: 300 }}
                             >
                               <Meta
-                                avatar={ (webId && webId.image) ? <Avatar src={ webId.image } /> : '' }
-                                title={ (webId && webId.nick) ? webId.nick : '<Not signed>' }
-                                description={ (webId && webId['@id']) ? webId['@id'] : '' }
+                                avatar={ image ? <Avatar src={ image } /> : '' }
+                                title={ nick ? nick : '<Not signed>' }
+                                description={ id ? id : '' }
                               />
                             </Card>
                           </Col>
