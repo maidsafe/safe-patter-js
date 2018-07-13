@@ -37,7 +37,7 @@ class HeaderComponent extends React.Component
 
       return (
           <div>
-              <Row type='flex' align='bottom' style={{ margin: '10px 0px 20px 0px' }}>
+              <Row type='flex' align='bottom' style={{ margin: '10px 0 30px 0' }} >
                   <Col span={ 15 }>
                     <Row>
                       <h1>Not Twitter</h1>
@@ -61,8 +61,8 @@ class HeaderComponent extends React.Component
                             >
                               <Meta
                                 avatar={ image ? <Avatar src={ image } /> : '' }
-                                title={ nick ? nick : '<Not signed>' }
-                                description={ id ? id : '' }
+                                title={ nick ? nick : <span>&nbsp;</span> }
+                                description={ id ? id : 'Sign in to be able to post messages' }
                               />
                             </Card>
                           </Col>

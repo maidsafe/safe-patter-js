@@ -29,12 +29,15 @@ const store = configureStore( {} );
 
 const listenForWebIdUpdate = () =>
 {
-    window.webIdEventEmitter.once( 'update', ( webId ) =>
+    if( window.webIdEventEmitter['_events'].length === 0 )
     {
-        console.log( 'webId from update', webId );
-        store.dispatch( userActions.setCurrentUser( webId ) );
-        listenForWebIdUpdate();
-    } );
+        window.webIdEventEmitter.once( 'update', ( webId ) =>
+        {
+            console.log( 'webId from update', webId );
+            store.dispatch( userActions.setCurrentUser( webId ) );
+            listenForWebIdUpdate();
+        } );
+    }
 };
 
 if ( window.webIdEventEmitter )

@@ -180,18 +180,14 @@ const fetchActorWebId = async ( webIdUri ) =>
 
 const fetchWallPosts = async ( wallWebId ) =>
 {
-    console.log("FETCHING POSTS:", wallWebId)
     const postsMd = await safeApp.mutableData.newPublic( wallWebId.posts.xorName, wallWebId.posts.typeTag );
     const entries = await postsMd.getEntries();
     const list = await entries.listEntries();
     list.forEach((e) => {
-      console.log("ENTRY:", e.key.toString(), e.value.toString())
+      console.log("POSTS ENTRY:", e.key.toString(), e.value.toString())
     })
-    console.log("FETCHING POSTS2:", wallWebId)
     const postsRdf = postsMd.emulateAs( 'rdf' );
-    console.log("FETCHING POSTS3:", wallWebId)
     await postsRdf.nowOrWhenFetched();
-    console.log("FETCHING POSTS4:", wallWebId)
     postsRdf.setId(wallWebId['@id'])
 
     const serial = await postsRdf.serialise();
@@ -275,17 +271,27 @@ export const {
     },
     [TYPES.SET_CURRENT_USER] : async ( webId ) =>
     {
-        console.log( 'Getting info from Peruse for user:', webId  );
         await connect();
         //webId = { ...globalWebId }; // TODO: remove
+        console.log( 'Getting info from Peruse for user:', webId );
+
         const wallWebId = { ...webId };
         wallWebId.posts = { ...webId.posts };
         wallWebId.posts.xorName = webId.posts.xorName.split(',');
         wallWebId.posts.typeTag = parseInt( webId.posts.typeTag );
 
+        let webIdClone;
+        if (safeApp.auth.registered) {
+            console.log("Switching the signed-in WebID also to:", webId);
+            webIdClone = { ...webId };
+            webIdClone.posts = { ...webId.posts };
+            webIdClone.posts.xorName = webId.posts.xorName.split(',');
+            webIdClone.posts.typeTag = parseInt( webId.posts.typeTag );
+        }
+
         const posts = await fetchWallPosts( wallWebId );
 
-        return { webId: null, wallWebId, posts };
+        return { webId: webIdClone, wallWebId, posts };
     },
     [TYPES.SWITCH_WALL] : async ( wallWebIdUri ) =>
     {

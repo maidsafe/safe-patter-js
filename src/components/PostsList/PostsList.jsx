@@ -64,36 +64,36 @@ class PostsList extends React.Component
         return (
             <div>
                 <h2>{name || ''}'s posts timeline</h2>
-                  <List
-                    itemLayout="horizontal"
-                    dataSource={allPosts}
-                    renderItem={item => (
-                      <List.Item>
-                        <List.Item.Meta
-                          avatar={ item.actorImage ?
-                            <Avatar size='small' src={item.actorImage} />
-                            :
-                            <Avatar style={{ backgroundColor: 'gray', verticalAlign: 'middle' }} >
-                              {item.actorNick.substring(0, 1).toUpperCase()}
-                            </Avatar>
-                          }
-                          title={
-                            <div><b>{item.actorNick}</b> <i>(<a target="_blank" style={{ color: 'MidnightBlue' }} href={item.actor}>{item.actor}</a>)</i></div>}
-                          description={
-                            <div>
-                              <Row>
-                              {item.summary}
-                              </Row>
-                              <Row>
-                              {item.content}
-                              </Row>
-                            </div>
-                          }
-                        />
-                        <div>{ item.published ? timeSince( new Date(item.published) ) : '' }</div>
-                      </List.Item>
-                    )}
-                  />
+                <List
+                  itemLayout="horizontal"
+                  dataSource={allPosts}
+                  renderItem={item => (
+                    <List.Item>
+                      <List.Item.Meta
+                        avatar={ item.actorImage ?
+                          <Avatar size='small' src={item.actorImage} />
+                          :
+                          <Avatar style={{ backgroundColor: 'gray', verticalAlign: 'middle' }} >
+                            {item.actorNick.substring(0, 1).toUpperCase()}
+                          </Avatar>
+                        }
+                        title={
+                          <div><b>{item.actorNick}</b> <i>(<a target="_blank" style={{ color: 'MidnightBlue' }} href={item.actor}>{item.actor}</a>)</i></div>}
+                        description={
+                          <div>
+                            <Row>
+                            {item.summary}
+                            </Row>
+                            <Row>
+                            {item.content}
+                            </Row>
+                          </div>
+                        }
+                      />
+                      <div>{ item.published ? timeSince( new Date(item.published) ) : '' }</div>
+                    </List.Item>
+                  )}
+                />
             </div>
         );
     }
