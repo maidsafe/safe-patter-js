@@ -23,11 +23,11 @@ class App extends React.Component
         const webId = users && users.webId;
         const wallWebId = users && users.wallWebId;
 
-        const image = wallWebId && wallWebId['#me'].image;
-        const nick = wallWebId && wallWebId['#me'].nick;
-        const id = wallWebId && wallWebId['#me']['@id'];
-        const name = wallWebId && wallWebId['#me'].name
-        const website = wallWebId && wallWebId['#me'].website
+        const image = wallWebId && wallWebId['#me'] && wallWebId['#me'].image;
+        const nick = wallWebId && wallWebId['#me'] && wallWebId['#me'].nick;
+        const id = wallWebId && wallWebId['#me'] && wallWebId['#me']['@id'];
+        const name = wallWebId && wallWebId['#me'] && wallWebId['#me'].name;
+        const website = wallWebId && wallWebId['#me'] && wallWebId['#me'].website;
 
         return (
             <div style={ {

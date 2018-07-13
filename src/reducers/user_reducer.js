@@ -1,25 +1,9 @@
 import { TYPES } from '../actions/user_actions';
 
 const initialState = {
-    webId : {
-      '@id': '',
-      '#me': {
-        name: '',
-        nick: '',
-        website: '',
-        image: ''
-      }
-    },
-    wallWebId : {
-      '@id': '',
-      '#me': {
-        name: '',
-        nick: '',
-        website: '',
-        image: ''
-      }
-    },
-    posts : [],
+    webId: null,
+    wallWebId: null,
+    posts: [],
 };
 
 export default ( state = initialState, action ) =>
@@ -36,6 +20,7 @@ export default ( state = initialState, action ) =>
         {
             return { ...state, webId: null };
         }
+        case TYPES.CONNECT_TO_NET:
         case TYPES.SET_CURRENT_USER:
         {
             return {

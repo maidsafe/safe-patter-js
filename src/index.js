@@ -23,21 +23,19 @@ function configureStore( initialState )
     );
 }
 
-// Authorise app and connect to the network up front
-// store.dispatch( userActions.connectToNet() );
 const store = configureStore( {} );
+
+// Authorise app and connect to the network up front
+store.dispatch( userActions.connectToNet() );
 
 const listenForWebIdUpdate = () =>
 {
-    if( window.webIdEventEmitter['_events'].length === 0 )
+    window.webIdEventEmitter.once( 'update', ( webId ) =>
     {
-        window.webIdEventEmitter.once( 'update', ( webId ) =>
-        {
-            console.log( 'webId from update', webId );
-            store.dispatch( userActions.setCurrentUser( webId ) );
-            listenForWebIdUpdate();
-        } );
-    }
+        console.log( 'webId from update', webId );
+        store.dispatch( userActions.setCurrentUser( webId ) );
+        listenForWebIdUpdate();
+    } );
 };
 
 if ( window.webIdEventEmitter )

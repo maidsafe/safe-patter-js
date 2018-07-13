@@ -31,9 +31,9 @@ class HeaderComponent extends React.Component
       const selectedKeys = [];
       const { webId, location } = this.props;
 
-      const image = webId && webId['#me'].image;
-      const nick = webId && webId['#me'].nick;
-      const id = webId && webId['#me']['@id'];
+      const image = webId && webId['#me'] && webId['#me'].image;
+      const nick = webId && webId['#me'] && webId['#me'].nick;
+      const id = webId && webId['#me'] && webId['#me']['@id'];
 
       return (
           <div>
@@ -62,7 +62,12 @@ class HeaderComponent extends React.Component
                               <Meta
                                 avatar={ image ? <Avatar src={ image } /> : '' }
                                 title={ nick ? nick : <span>&nbsp;</span> }
-                                description={ id ? id : 'Sign in to be able to post messages' }
+                                description={ id ? id :
+                                  (window.currentWebId
+                                    ? 'Sign in to be able to post messages'
+                                    : 'Select a WebID from the browser'
+                                  )
+                                }
                               />
                             </Card>
                           </Col>
@@ -72,7 +77,7 @@ class HeaderComponent extends React.Component
                                 Sign out
                               </Button>
                             ) : (
-                              <Button size='small' type='primary' onClick={ this.props.authorise }>
+                              <Button disabled={ window.currentWebId ? false : true } size='small' type='primary' onClick={ this.props.authorise }>
                                 Sign in
                               </Button>
                             )}

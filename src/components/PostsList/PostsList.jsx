@@ -78,7 +78,8 @@ class PostsList extends React.Component
                           </Avatar>
                         }
                         title={
-                          <div><b>{item.actorNick}</b> <i>(<a target="_blank" style={{ color: 'MidnightBlue' }} href={item.actor}>{item.actor}</a>)</i></div>}
+                          <div><b>{item.actorNick}</b> <i>(<a target="_blank" style={{ color: 'MidnightBlue' }} href={item.actor}>{item.actor}</a>)</i></div>
+                        }
                         description={
                           <div>
                             <Row>
