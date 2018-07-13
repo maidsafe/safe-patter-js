@@ -27,20 +27,23 @@ function configureStore( initialState )
 // store.dispatch( userActions.connectToNet() );
 const store = configureStore( {} );
 
+const listenForWebIdUpdate = () =>
+{
+    window.webIdEventEmitter.once( 'update', ( webId ) =>
+    {
+        console.log( 'webId from update', webId );
+        store.dispatch( userActions.setCurrentUser( webId ) );
+        listenForWebIdUpdate();
+    } );
+};
 
 if ( window.webIdEventEmitter )
 {
     console.log( 'webId emitter exists!' );
 
-    if( window.webIdEventEmitter['_events'].length === 0 )
-    {
-        window.webIdEventEmitter.once( 'update', ( webId ) =>
-        {
-            console.log('webId from update', webId)
-            store.dispatch( userActions.setCurrentUser( webId ) );
-        } );
-    }
+    listenForWebIdUpdate();
 }
+
 
 if ( window.currentWebId )
 {
