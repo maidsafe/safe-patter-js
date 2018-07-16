@@ -60,7 +60,14 @@ class HeaderComponent extends React.Component
                               style={{ width: 300 }}
                             >
                               <Meta
-                                avatar={ image ? <Avatar src={ image } /> : '' }
+                                avatar={ image ?
+                                  <Avatar src={image} />
+                                  : ( id ?
+                                      (<Avatar style={{ backgroundColor: 'gray', verticalAlign: 'middle' }} >
+                                        {nick ? nick.substring(0, 1).toUpperCase() : ''}
+                                      </Avatar>)
+                                    : '' )
+                                }
                                 title={ nick ? nick : <span>&nbsp;</span> }
                                 description={ id ? id :
                                   (window.currentWebId

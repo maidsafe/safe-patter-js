@@ -11,9 +11,11 @@ import Messager from '../components/Messager/Messager';
 import PostsList from '../components/PostsList/PostsList';
 import PostForm from '../components/PostForm/PostForm';
 
-import { Layout, Row, Col } from 'antd';
+import { Layout, Row, Col, Avatar } from 'antd';
 
 const { Header, Sider, Content, Footer } = Layout;
+
+import unknown from '../../public/unknown.jpg';
 
 class App extends React.Component
 {
@@ -51,7 +53,11 @@ class App extends React.Component
                 { wallWebId ? (
                   <Row gutter={ 48 }>
                     <Col span={ 8 }>
-                      <img width="160" src={ image } /><br/><br/>
+                      { image ?
+                        <img width='160' src={image} />
+                        :
+                        <img width='160' src={unknown} />
+                      }<br/><br/>
                       <h2><b>{ nick }</b></h2>
                       <h3><i>{ id }</i></h3>
                       <br/>
