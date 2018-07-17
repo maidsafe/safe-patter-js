@@ -37,7 +37,7 @@ class HeaderComponent extends React.Component
 
       return (
           <div>
-              <Row type='flex' align='bottom' style={{ margin: '10px 0 30px 0' }} >
+              <Row type='flex' align='top' style={{ margin: '10px 0 30px 0' }} >
                   <Col span={ 15 }>
                     <Row>
                       <h1>Not Twitter</h1>
@@ -48,7 +48,7 @@ class HeaderComponent extends React.Component
                          placeholder="enter a WebID URI to search"
                          onSearch={ this.handleSearch }
                          style={{ width: 330 }}
-                         enterButton="Search"
+                         enterButton="search"
                          size="small"
                        />
                     </Row>

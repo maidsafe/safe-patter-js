@@ -86,13 +86,13 @@ const fetchWallWebId = async ( webIdUri ) =>
     const entries = await webIdMd.getEntries();
     const list = await entries.listEntries();
     list.forEach((e) => {
-      console.log("POSTS ENTRY:", `${webIdUri}/posts`, e.key.toString(), e.value.buf.toString())
+      console.log("WEBID ENTRY:", e.key.toString(), e.value.buf.toString())
     })
 
     const webIdRdf = webIdMd.emulateAs( 'rdf' );
     await webIdRdf.nowOrWhenFetched();
 
-    const serial = await webIdRdf.serialise();
+    const serial = await webIdRdf.serialise('application/ld+json');
     console.log("Target WebID doc:", serial);
 
     const baseUri = webIdUri.split('#')[0];

@@ -59,7 +59,7 @@ class App extends React.Component
                         <img width='160' src={unknown} />
                       }<br/><br/>
                       <h2><b>{ nick }</b></h2>
-                      <h3><i>{ id }</i></h3>
+                      <h3><i><a target="_blank" style={{ color: 'MidnightBlue' }} href={id}>{id}</a></i></h3>
                       <br/>
                       <h4><b>Name:</b> { name }</h4>
                       <h4><b>Website:</b> { website }</h4>
