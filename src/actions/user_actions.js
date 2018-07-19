@@ -100,20 +100,20 @@ const fetchWallWebId = async ( webIdUri ) =>
     const postsGraph = `${baseUri}/posts`;
     const FOAF = webIdRdf.namespace( 'http://xmlns.com/foaf/0.1/' );
 
-    let match = webIdRdf.statementsMatching( webIdRdf.sym( webIdGraph ), FOAF( 'name' ), undefined );
-    const name = match[0].object.value;
-    match = webIdRdf.statementsMatching( webIdRdf.sym( webIdGraph ), FOAF( 'nick' ), undefined );
-    const nick = match[0].object.value;
-    match = webIdRdf.statementsMatching( webIdRdf.sym( webIdGraph ), FOAF( 'website' ), undefined );
-    const website = match[0].object.value;
-    match = webIdRdf.statementsMatching( webIdRdf.sym( webIdGraph ), FOAF( 'image' ), undefined );
-    const image = match[0].object.value;
+    const nameMatch = webIdRdf.statementsMatching( webIdRdf.sym( webIdGraph ), FOAF( 'name' ), undefined );
+    const name = nameMatch[0] && nameMatch[0].object.value;
+    const nickMatch = webIdRdf.statementsMatching( webIdRdf.sym( webIdGraph ), FOAF( 'nick' ), undefined );
+    const nick = nickMatch[0] && nickMatch[0].object.value;
+    const websiteMatch = webIdRdf.statementsMatching( webIdRdf.sym( webIdGraph ), FOAF( 'website' ), undefined );
+    const website = websiteMatch[0] && websiteMatch[0].object.value;
+    const imageMatch = webIdRdf.statementsMatching( webIdRdf.sym( webIdGraph ), FOAF( 'image' ), undefined );
+    const image = imageMatch[0] && imageMatch[0].object.value;
 
     const SAFETERMS = webIdRdf.namespace( 'http://safenetwork.org/safevocab/' );
-    match = webIdRdf.statementsMatching( webIdRdf.sym( postsGraph ), SAFETERMS( 'xorName' ), undefined );
-    const xorName = match[0].object.value.split( ',' );
-    match = webIdRdf.statementsMatching( webIdRdf.sym( postsGraph ), SAFETERMS( 'typeTag' ), undefined );
-    const typeTag = parseInt( match[0].object.value );
+    const xornameMatch = webIdRdf.statementsMatching( webIdRdf.sym( postsGraph ), SAFETERMS( 'xorName' ), undefined );
+    const xorName = xornameMatch[0].object.value.split( ',' );
+    const typetagMatch = webIdRdf.statementsMatching( webIdRdf.sym( postsGraph ), SAFETERMS( 'typeTag' ), undefined );
+    const typeTag = parseInt( typetagMatch[0].object.value );
 
     const wallWebId = {
         "@id": baseUri,
