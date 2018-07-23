@@ -71,7 +71,7 @@ class HeaderComponent extends React.Component
                                 title={ nick ? nick : <span>&nbsp;</span> }
                                 description={ id ? id :
                                   (window.currentWebId
-                                    ? 'Sign in to be able to post messages'
+                                    ? 'Identify yourself to post messages'
                                     : 'Select a WebID from the browser'
                                   )
                                 }
@@ -81,11 +81,11 @@ class HeaderComponent extends React.Component
                           <Col span={ 7 } style={{ paddingTop: '5px' }}>
                             { webId ? (
                               <Button size='small' type='danger' onClick={ this.props.downgradeConn }>
-                                Sign out
+                                forget me
                               </Button>
                             ) : (
                               <Button disabled={ window.currentWebId ? false : true } size='small' type='primary' onClick={ this.props.authorise }>
-                                Sign in
+                                id me
                               </Button>
                             )}
                           </Col>
