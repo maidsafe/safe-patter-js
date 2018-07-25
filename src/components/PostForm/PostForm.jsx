@@ -36,7 +36,10 @@ class PostForm extends React.Component
         {
             if ( !err )
             {
-                const postToAdd = { ...values };
+                const trimmedValues = { ...values };
+                Object.keys( trimmedValues ).forEach( key => trimmedValues[key] = trimmedValues[key].trim() );
+                const postToAdd = { ...trimmedValues };
+
                 const nowTimestamp = new Date();
                 postToAdd.published = nowTimestamp.toISOString();
 
@@ -59,7 +62,7 @@ class PostForm extends React.Component
                         } )( <Input
                                 disabled={ !this.props.users.webId }
                                 placeholder="A summary..."
-                             /> 
+                             />
                             )}
                     </FormItem>
                     <FormItem style={{ margin: 0 }}>
