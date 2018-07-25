@@ -40,7 +40,7 @@ class HeaderComponent extends React.Component
               <Row type='flex' align='top' style={{ margin: '10px 0 30px 0' }} >
                   <Col span={ 15 }>
                     <Row>
-                      <h1>Not Twitter</h1>
+                      <h1>Patter</h1>
                     </Row>
                     <Row>
                       <Search

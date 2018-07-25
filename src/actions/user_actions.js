@@ -13,7 +13,7 @@ export const TYPES = {
 let safeApp = null;
 const appInfo = {
     id     : 'net.maidsafe.example',
-    name   : 'Not Twitter SAFE App',
+    name   : 'Patter',
     vendor : 'MaidSafe.net Ltd'
 };
 
