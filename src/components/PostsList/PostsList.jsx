@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { List, Card, Avatar, Row, Col, Button } from 'antd';
+import { Link } from 'react-router-dom';
 
 function timeSince( timeStamp )
 {
@@ -95,7 +96,15 @@ class PostsList extends React.Component
                                     </Avatar>
                                 }
                                 title={
-                                    <div><b>{item.actorNick}</b> <i>(<a target="_blank" style={ { color: 'MidnightBlue' } } href={ item.actor }>{item.actor}</a>)</i></div>
+                                    <div>
+                                        <b>{item.actorNick}</b>
+                                    <i>(<Link
+                                        // target="_blank"
+                                        style={ { color: 'MidnightBlue' } }
+                                        to={ `/profile/${item.actor.replace('safe://', '').replace('#me', '')}` }>{item.actor}</Link>
+                                    )
+                                    </i>
+                                </div>
                                 }
                                 description={
                                     <div>

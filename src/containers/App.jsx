@@ -26,7 +26,8 @@ class App extends React.Component
         const webId = users && users.webId;
         const wallWebId = users && users.wallWebId;
 
-
+        console.log( 'WEBIDDDD', webId );
+        console.log( 'wallWebId', wallWebId );
         return (
             <div style={ {
                 maxWidth : '800px',
@@ -37,14 +38,46 @@ class App extends React.Component
 
                 <Row>
                     <Col span={ 24 }>
-                        <HeaderComponent
-                            webId={ webId }
-                            switchWall={ switchWall }
-                            auhorise={ authorise }
-                            downgradeConn={ downgradeConn }
-                            { ...this.props }
+                        <Route
+                            path="/"
+                            render={ () => (
+                                <HeaderComponent
+                                    webId={ webId }
+                                    switchWall={ switchWall }
+                                    auhorise={ authorise }
+                                    downgradeConn={ downgradeConn }
+                                    { ...this.props }
+                                /> )
+                            }
                         />
-                        <Wall webId={ wallWebId } users={ users } addPost={ addPost } />
+                        <Switch>
+                            <Route
+                                path="/home"
+                                render={ () => (
+                                    <Wall
+                                        webId={ wallWebId }
+                                        users={ users }
+                                        addPost={ addPost }
+                                    />
+                                ) }
+                            />
+
+                            <Route
+                                path="/profile/:uri"
+                                render={ ( props ) => (
+                                    <Wall
+                                        webId={ wallWebId }
+                                        users={ users }
+                                        addPost={ addPost }
+                                        match={ props.match }
+                                        switchWall={ switchWall }
+                                    />
+                                ) }
+                            />
+                            {/* <Wall webId={ wallWebId } users={ users } addPost={ addPost } /> */}
+                            <Route path="/" render={ () => <Redirect to="/home" /> } />
+                        </Switch>
+
                     </Col>
                 </Row>
 

@@ -8,10 +8,43 @@ import unknown from '../../../public/unknown.jpg';
 
 class WallComponent extends React.Component
 {
-  state = {
-      searchWebIdUri : '',
-  }
+    state = {
+        searchWebIdUri : '',
+    }
 
+    componentDidMount = ( ) =>
+    {
+        const { match } = this.props;
+
+        if ( !match ) return;
+
+        this.checkAndLoadProfile( match );
+    }
+
+    componentWillReceiveProps = ( newProps ) =>
+    {
+        const { match } = newProps;
+
+        if ( !match ) return;
+
+        this.checkAndLoadProfile( match );
+    }
+
+    checkAndLoadProfile = ( match ) =>
+    {
+        const { switchWall } = this.props;
+
+        if ( !match || !match.params || !match.params.uri ) return;
+
+        const theUri = `safe://${match.params.uri}#me`;
+
+        if ( theUri !== this.fetchingProfile )
+        {
+            this.fetchingProfile = theUri;
+
+            switchWall( `${theUri}` );
+        }
+    }
 
   render = ( ) =>
   {
