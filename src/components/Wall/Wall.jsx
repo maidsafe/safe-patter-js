@@ -14,18 +14,18 @@ class WallComponent extends React.Component
 
     componentDidMount = ( ) =>
     {
-        const { match } = this.props;
+        const { match, users } = this.props;
 
-        if ( !match ) return;
+        if ( !users.connected ) return;
 
         this.checkAndLoadProfile( match );
     }
 
     componentWillReceiveProps = ( newProps ) =>
     {
-        const { match } = newProps;
+        const { match, users } = newProps;
 
-        if ( !match ) return;
+        if ( !users.connected ) return;
 
         this.checkAndLoadProfile( match );
     }
@@ -34,7 +34,21 @@ class WallComponent extends React.Component
     {
         const { switchWall } = this.props;
 
-        if ( !match || !match.params || !match.params.uri ) return;
+        if ( !switchWall ) return;
+
+        if ( !match || !match.params || !match.params.uri )
+        {
+            if ( !window.currentWebId ) return;
+
+            const windowIdUri = window.currentWebId['#me']['@id'];
+
+            if ( windowIdUri !== this.fetchingProfile )
+            {
+                this.fetchingProfile = windowIdUri;
+                switchWall( `${windowIdUri}` );
+            }
+            return;
+        }
 
         const theUri = `safe://${match.params.uri}#me`;
 

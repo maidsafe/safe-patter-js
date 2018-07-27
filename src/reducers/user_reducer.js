@@ -21,12 +21,16 @@ export default ( state = initialState, action ) =>
             return { ...state, webId: null };
         }
         case TYPES.CONNECT_TO_NET:
+        {
+            return { ...state, connected: true }
+        }
         case TYPES.SET_CURRENT_USER:
         {
+            console.log('setting current useerrrr', state.wallWebId)
             return {
                 ...state,
                 webId     : payload.webId,
-                wallWebId : payload.wallWebId,
+                wallWebId : state.wallWebId || payload.wallWebId,
                 posts     : payload.posts
             };
         }
@@ -40,7 +44,7 @@ export default ( state = initialState, action ) =>
         case TYPES.SWITCH_WALL:
         {
             if ( payload.message ) return { ...state };
-
+            console.log('whaaaaaat switching??????????????////', payload)
             return {
                 ...state,
                 wallWebId : payload.wallWebId,

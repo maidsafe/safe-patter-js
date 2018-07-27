@@ -56,6 +56,7 @@ class App extends React.Component
                                 render={ () => (
                                     <Wall
                                         webId={ wallWebId }
+                                        switchWall={ switchWall }
                                         users={ users }
                                         addPost={ addPost }
                                     />
