@@ -227,19 +227,6 @@ export const {
     [TYPES.CONNECT_TO_NET] : async () =>
     {
         await connect();
-        // console.log( 'Current webId?: ', window.currentWebId );
-        // if ( window.currentWebId )
-        // {
-        //     const wallWebId = { ...window.currentWebId };
-        //     wallWebId.posts = { ...window.currentWebId.posts };
-        //     wallWebId.posts.xorName = window.currentWebId.posts.xorName.split( ',' );
-        //     wallWebId.posts.typeTag = parseInt( window.currentWebId.posts.typeTag );
-        //     const posts = await fetchWallPosts( wallWebId );
-        //
-        //     return { webId: null, wallWebId, posts };
-        // }
-        //
-        // return { webId: null, wallWebId: null, posts: [] };
     },
     [TYPES.AUTHORISE] : async () =>
     {
