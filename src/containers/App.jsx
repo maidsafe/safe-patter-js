@@ -26,8 +26,8 @@ class App extends React.Component
         const webId = users && users.webId;
         const wallWebId = users && users.wallWebId;
 
-        console.log( 'WEBIDDDD', webId );
-        console.log( 'wallWebId', wallWebId );
+        console.log( 'Selected WebID:', webId );
+        console.log( 'WallWebId:', wallWebId );
         return (
             <div style={ {
                 maxWidth : '800px',

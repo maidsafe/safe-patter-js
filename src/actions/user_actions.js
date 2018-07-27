@@ -153,12 +153,14 @@ const fetchActorWebId = async ( webIdUri ) =>
 const fetchWallPosts = async ( wallWebId ) =>
 {
     const postsMd = await safeApp.mutableData.newPublic( wallWebId.posts.xorName, wallWebId.posts.typeTag );
+    /*
     const entries = await postsMd.getEntries();
     const list = await entries.listEntries();
     list.forEach( ( e ) =>
     {
         console.log( 'POSTS ENTRY:', e.key.toString(), e.value.toString() );
     } );
+    */
     const postsRdf = postsMd.emulateAs( 'rdf' );
     await postsRdf.nowOrWhenFetched();
     postsRdf.setId( wallWebId['@id'] );

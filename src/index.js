@@ -32,7 +32,6 @@ const listenForWebIdUpdate = () =>
 {
     window.webIdEventEmitter.once( 'update', ( webId ) =>
     {
-        console.log( 'webId from update', webId );
         store.dispatch( userActions.setCurrentUser( webId ) );
         listenForWebIdUpdate();
     } );

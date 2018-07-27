@@ -29,8 +29,8 @@ export default ( state = initialState, action ) =>
             return {
                 ...state,
                 webId     : payload.webId,
-                wallWebId : state.wallWebId || payload.wallWebId,
-                posts     : payload.posts
+                wallWebId : state.webId ? state.wallWebId : payload.wallWebId,
+                posts     : state.webId ? state.posts : payload.posts
             };
         }
         case TYPES.ADD_POST:

@@ -87,7 +87,7 @@ class PostsList extends React.Component
                     dataSource={ allPosts }
                     renderItem={ item => (
                         <List.Item>
-                            <List.Item.Meta
+                            <List.Item.Meta span={15} style={{ width: "100%", border: "1px solid blue" }}
                                 avatar={ item.actorImage ?
                                     <Avatar size="small" src={ item.actorImage } />
                                     :
@@ -107,17 +107,17 @@ class PostsList extends React.Component
                                 </div>
                                 }
                                 description={
-                                    <div>
-                                        <Row>
+                                    <div style={{ border: "1px solid red" }}>
+                                        <Row span={15}>
                                             {item.summary}
                                         </Row>
-                                        <Row>
+                                        <Row span={15}>
                                             {item.content}
                                         </Row>
                                     </div>
                                 }
                             />
-                            <div>{ item.published ? timeSince( new Date( item.published ) ) : '' }</div>
+                            <div style={{ border: "1px solid red" }}>{ item.published ? timeSince( new Date( item.published ) ) : '' }</div>
                         </List.Item>
                     ) }
                 />
