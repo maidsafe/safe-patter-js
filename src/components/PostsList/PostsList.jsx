@@ -87,7 +87,9 @@ class PostsList extends React.Component
                     dataSource={ allPosts }
                     renderItem={ item => (
                         <List.Item>
-                            <List.Item.Meta span={15} style={{ width: "100%", border: "1px solid blue" }}
+                            <List.Item.Meta
+                                span={ 15 }
+                                style={ { width: '100%' } }
                                 avatar={ item.actorImage ?
                                     <Avatar size="small" src={ item.actorImage } />
                                     :
@@ -97,27 +99,37 @@ class PostsList extends React.Component
                                 }
                                 title={
                                     <div>
-                                        <b>{item.actorNick}</b>
-                                    <i>(<Link
-                                        // target="_blank"
-                                        style={ { color: 'MidnightBlue' } }
-                                        to={ `/profile/${item.actor.replace('safe://', '').replace('#me', '')}` }>{item.actor}</Link>
-                                    )
-                                    </i>
-                                </div>
+                                        <b><Link
+                                            // target="_blank"
+                                            style={ { color: 'MidnightBlue' } }
+                                            to={ `/profile/${item.actor.replace( 'safe://', '' ).replace( '#me', '' )}` }
+                                        >{item.actorNick.substring( 0, 1 ).toUpperCase()}
+
+                                            {item.actorNick}
+                                        </Link>
+                                        </b>
+                                        <i> ({item.actor})
+                                        </i>
+                                        <div>
+                                            { item.published ? timeSince( new Date( item.published ) ) : '' }
+                                        </div>
+                                    </div>
                                 }
                                 description={
-                                    <div style={{ border: "1px solid red" }}>
-                                        <Row span={15}>
+                                    <div>
+
+                                        <Row span={ 15 }>
                                             {item.summary}
                                         </Row>
-                                        <Row span={15}>
+                                        <Row span={ 15 }>
                                             {item.content}
                                         </Row>
                                     </div>
                                 }
                             />
-                            <div style={{ border: "1px solid red" }}>{ item.published ? timeSince( new Date( item.published ) ) : '' }</div>
+
+
+
                         </List.Item>
                     ) }
                 />

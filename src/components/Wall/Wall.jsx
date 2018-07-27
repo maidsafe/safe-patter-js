@@ -62,7 +62,7 @@ class WallComponent extends React.Component
 
   render = ( ) =>
   {
-      const { webId, users, addPost } = this.props;
+      const { webId, users, addPost, fetchPosts } = this.props;
 
       const image = webId && webId['#me'] && webId['#me'].image;
       const nick = webId && webId['#me'] && webId['#me'].nick;
@@ -94,7 +94,7 @@ class WallComponent extends React.Component
                           </Row>
                           <Row>
                               <Col span={ 24 } >
-                                  <PostsList posts={ users.posts } name={ nick } webId={ webId } { ...this.props } />
+                                  <PostsList fetchPosts={fetchPosts} posts={ users.posts } name={ nick } webId={ webId } { ...this.props } />
                               </Col>
                           </Row>
                       </Col>

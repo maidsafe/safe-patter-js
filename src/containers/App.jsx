@@ -21,7 +21,7 @@ class App extends React.Component
     render = () =>
     {
         const {
-            users, match, addPost, switchWall, authorise, downgradeConn
+            users, match, addPost, switchWall, authorise, downgradeConn, fetchPosts
         } = this.props;
         const webId = users && users.webId;
         const wallWebId = users && users.wallWebId;
@@ -59,6 +59,7 @@ class App extends React.Component
                                         switchWall={ switchWall }
                                         users={ users }
                                         addPost={ addPost }
+                                        fetchPosts={ fetchPosts }
                                     />
                                 ) }
                             />
@@ -71,6 +72,7 @@ class App extends React.Component
                                         users={ users }
                                         addPost={ addPost }
                                         match={ props.match }
+                                        fetchPosts={ fetchPosts }
                                         switchWall={ switchWall }
                                     />
                                 ) }
