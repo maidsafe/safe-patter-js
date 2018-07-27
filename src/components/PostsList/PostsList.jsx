@@ -50,9 +50,9 @@ class PostsList extends React.Component
     }
 
     handleReload = async () => {
-        const { fetchPosts, wallWebId } = this.props;
+        const { fetchPosts, webId } = this.props;
         this.setState({ reloading: true });
-        await fetchPosts(wallWebId);
+        await fetchPosts(webId);
         this.setState({ reloading: false });
     }
 
