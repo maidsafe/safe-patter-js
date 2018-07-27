@@ -39,7 +39,5 @@ describe( 'Avatar', () =>
         {
             expect( wrapper.find( 'Upload' ).length ).toBe( 1 );
         } );
-
     } );
-
 } );

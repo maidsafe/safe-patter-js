@@ -45,7 +45,5 @@ describe( 'Messager', () =>
         {
             expect( wrapper.find( 'IdForm' ).length ).toBe( 0 );
         } );
-
     } );
-
 } );

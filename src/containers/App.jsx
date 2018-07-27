@@ -12,13 +12,17 @@ import Wall from '../components/Wall/Wall';
 
 import { Layout, Row, Col, Avatar } from 'antd';
 
-const { Header, Sider, Content, Footer } = Layout;
+const {
+    Header, Sider, Content, Footer
+} = Layout;
 
 class App extends React.Component
 {
     render = () =>
     {
-        const { users, match, addPost, switchWall, authorise, downgradeConn } = this.props;
+        const {
+            users, match, addPost, switchWall, authorise, downgradeConn
+        } = this.props;
         const webId = users && users.webId;
         const wallWebId = users && users.wallWebId;
 
@@ -32,16 +36,16 @@ class App extends React.Component
             >
 
                 <Row>
-                  <Col span={ 24 }>
-                    <HeaderComponent
-                        webId={ webId }
-                        switchWall={ switchWall }
-                        auhorise={ authorise }
-                        downgradeConn={ downgradeConn }
-                        { ...this.props }
-                    />
-                    <Wall webId={wallWebId} users={users} addPost={addPost} />
-                  </Col>
+                    <Col span={ 24 }>
+                        <HeaderComponent
+                            webId={ webId }
+                            switchWall={ switchWall }
+                            auhorise={ authorise }
+                            downgradeConn={ downgradeConn }
+                            { ...this.props }
+                        />
+                        <Wall webId={ wallWebId } users={ users } addPost={ addPost } />
+                    </Col>
                 </Row>
 
             </div>

@@ -39,7 +39,7 @@ function timeSince( timeStamp )
 class PostsList extends React.Component
 {
     state = {
-        reloading: false
+        reloading : false
     }
     static propTypes = {
         posts : PropTypes.array
@@ -49,11 +49,12 @@ class PostsList extends React.Component
         posts : []
     }
 
-    handleReload = async () => {
+    handleReload = async () =>
+    {
         const { fetchPosts, webId } = this.props;
-        this.setState({ reloading: true });
-        await fetchPosts(webId);
-        this.setState({ reloading: false });
+        this.setState( { reloading: true } );
+        await fetchPosts( webId );
+        this.setState( { reloading: false } );
     }
 
     render = () =>
@@ -62,54 +63,54 @@ class PostsList extends React.Component
 
         const allPosts = [...posts];
 
-        allPosts.sort( ( a, b ) => new Date(b.published) - new Date(a.published) );
+        allPosts.sort( ( a, b ) => new Date( b.published ) - new Date( a.published ) );
 
         return (
             <div>
                 <Row>
-                  <Col span={12}><h2>{name || ''}'s posts timeline</h2></Col>
-                  <Col span={2} offset={10}>
-                    <Button
-                      disabled={ allPosts.length == 0 }
-                      shape="circle"
-                      size="small"
-                      icon="sync"
-                      loading={ this.state.reloading ? true : false }
-                      onClick={ this.handleReload }
-                    />
-                  </Col>
+                    <Col span={ 12 }><h2>{name || ''}'s posts timeline</h2></Col>
+                    <Col span={ 2 } offset={ 10 }>
+                        <Button
+                            disabled={ allPosts.length == 0 }
+                            shape="circle"
+                            size="small"
+                            icon="sync"
+                            loading={ !!this.state.reloading }
+                            onClick={ this.handleReload }
+                        />
+                    </Col>
                 </Row>
 
                 <List
-                  itemLayout="horizontal"
-                  dataSource={allPosts}
-                  renderItem={item => (
-                    <List.Item>
-                      <List.Item.Meta
-                        avatar={ item.actorImage ?
-                          <Avatar size='small' src={item.actorImage} />
-                          :
-                          <Avatar style={{ backgroundColor: 'gray', verticalAlign: 'middle' }} >
-                            {item.actorNick.substring(0, 1).toUpperCase()}
-                          </Avatar>
-                        }
-                        title={
-                          <div><b>{item.actorNick}</b> <i>(<a target="_blank" style={{ color: 'MidnightBlue' }} href={item.actor}>{item.actor}</a>)</i></div>
-                        }
-                        description={
-                          <div>
-                            <Row>
-                            {item.summary}
-                            </Row>
-                            <Row>
-                            {item.content}
-                            </Row>
-                          </div>
-                        }
-                      />
-                      <div>{ item.published ? timeSince( new Date(item.published) ) : '' }</div>
-                    </List.Item>
-                  )}
+                    itemLayout="horizontal"
+                    dataSource={ allPosts }
+                    renderItem={ item => (
+                        <List.Item>
+                            <List.Item.Meta
+                                avatar={ item.actorImage ?
+                                    <Avatar size="small" src={ item.actorImage } />
+                                    :
+                                    <Avatar style={ { backgroundColor: 'gray', verticalAlign: 'middle' } } >
+                                        {item.actorNick.substring( 0, 1 ).toUpperCase()}
+                                    </Avatar>
+                                }
+                                title={
+                                    <div><b>{item.actorNick}</b> <i>(<a target="_blank" style={ { color: 'MidnightBlue' } } href={ item.actor }>{item.actor}</a>)</i></div>
+                                }
+                                description={
+                                    <div>
+                                        <Row>
+                                            {item.summary}
+                                        </Row>
+                                        <Row>
+                                            {item.content}
+                                        </Row>
+                                    </div>
+                                }
+                            />
+                            <div>{ item.published ? timeSince( new Date( item.published ) ) : '' }</div>
+                        </List.Item>
+                    ) }
                 />
             </div>
         );

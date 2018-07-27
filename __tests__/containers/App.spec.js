@@ -105,7 +105,6 @@ describe( 'App', () =>
 
     describe( '/create', () =>
     {
-
         it( 'should have a form', () =>
         {
             props = { ...props };
@@ -128,5 +127,4 @@ describe( 'App', () =>
             expect( wrapper.find( 'PostForm' ).length ).toBe( 1 );
         } );
     } );
-
 } );

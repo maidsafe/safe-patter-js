@@ -1,9 +1,9 @@
 import { TYPES } from '../actions/user_actions';
 
 const initialState = {
-    webId: null,
-    wallWebId: null,
-    posts: [],
+    webId     : null,
+    wallWebId : null,
+    posts     : [],
 };
 
 export default ( state = initialState, action ) =>
@@ -24,32 +24,32 @@ export default ( state = initialState, action ) =>
         case TYPES.SET_CURRENT_USER:
         {
             return {
-              ...state,
-              webId: payload.webId,
-              wallWebId: payload.wallWebId,
-              posts: payload.posts
+                ...state,
+                webId     : payload.webId,
+                wallWebId : payload.wallWebId,
+                posts     : payload.posts
             };
         }
         case TYPES.ADD_POST:
         {
             const oldPosts = state.posts;
-            console.log("Let's update list of posts")
+            console.log( "Let's update list of posts" );
             const postArray = [...oldPosts, payload];
             return { ...state, posts: postArray };
         }
         case TYPES.SWITCH_WALL:
         {
-            if (payload.message) return { ...state };
+            if ( payload.message ) return { ...state };
 
             return {
                 ...state,
-                wallWebId: payload.wallWebId,
-                posts: payload.posts
+                wallWebId : payload.wallWebId,
+                posts     : payload.posts
             };
         }
         case TYPES.FETCH_POSTS:
         {
-            console.log("Let's fully update list of posts")
+            console.log( "Let's fully update list of posts" );
             return { ...state, posts: payload };
         }
 
