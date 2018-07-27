@@ -72,7 +72,7 @@ class App extends React.Component
                       </Row>
                       <Row>
                         <Col span={ 24 } >
-                          <PostsList posts={ users.posts } name={ nick } { ...this.props } />
+                          <PostsList posts={ users.posts } name={ nick } wallWebId={ wallWebId } { ...this.props } />
                         </Col>
                       </Row>
                     </Col>

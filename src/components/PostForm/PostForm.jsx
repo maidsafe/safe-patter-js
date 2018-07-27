@@ -1,7 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Form, Input, Button, Row, Col } from 'antd';
-import Avatar from '../Avatar/Avatar';
 
 const FormItem = Form.Item;
 
@@ -58,20 +56,20 @@ class PostForm extends React.Component
                     <FormItem style={{ margin: 0 }}>
                         {getFieldDecorator( 'summary', {
                             rules : [{ required: true, message: 'Please enter a summary' }],
-                        } )( <Input disabled={ !this.props.users.webId }
-                            // and icons removed as attempts to access a font online
-                            // prefix={ <Icon type="user" style={ { color: 'rgba(0,0,0,.25)' } } /> }
-                            placeholder="A summary..."
-                        /> )}
+                        } )( <Input
+                                disabled={ !this.props.users.webId }
+                                placeholder="A summary..."
+                             /> 
+                            )}
                     </FormItem>
                     <FormItem style={{ margin: 0 }}>
                         {getFieldDecorator( 'content', {
                             rules : [{ required: true, message: 'Please enter some text!' }],
-                        } )( <Input.TextArea disabled={ !this.props.users.webId }
-                            // and icons removed as attempts to access a font online
-                            // prefix={ <Icon type="user" style={ { color: 'rgba(0,0,0,.25)' } } /> }
-                            placeholder="Something super important..."
-                        /> )}
+                        } )( <Input.TextArea
+                                disabled={ !this.props.users.webId }
+                                placeholder="Something super important..."
+                             />
+                            )}
                     </FormItem>
                 </Row>
                 <Row>

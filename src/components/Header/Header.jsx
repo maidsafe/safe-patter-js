@@ -1,8 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { Menu } from 'antd';
-import { PATHS } from '../../constants';
-import { Layout, Form, Row, Col, Input, Button, Avatar, Card, Switch, notification } from 'antd';
+import { Layout, Form, Row, Col, Input, Button, Avatar, Card, Icon, message } from 'antd';
 
 const { Header } = Layout;
 const FormItem = Form.Item;
@@ -11,18 +8,25 @@ const Search = Input.Search;
 
 class HeaderComponent extends React.Component
 {
+  state = {
+      searchWebIdUri: '',
+  }
+
+  onChangeSearchUri = (e) => {
+      this.setState({ searchWebIdUri: e.target.value });
+  }
+
   handleSearch = async ( webIdUri ) =>
   {
+      if (webIdUri.length == 0) return;
+
       try {
           await this.props.switchWall(`safe://${webIdUri}`);
+          this.setState({ searchWebIdUri: '' });
+          this.searchInput.blur();
       } catch (err) {
           console.log("WebID entered not found:", err);
-          //FIXME: we need to include the icons files with the site for this to work
-          /*notification.open({
-              message: 'WebID entered not found',
-              description: 'Verify that the WebID entered is correct and try again',
-              duration: 5,
-          });*/
+          message.error('WebID entered not found', 2);
       }
   }
 
@@ -46,10 +50,13 @@ class HeaderComponent extends React.Component
                       <Search
                          addonBefore="safe://"
                          placeholder="enter a WebID URI to search"
+                         value={ this.state.searchWebIdUri }
                          onSearch={ this.handleSearch }
+                         onChange= { this.onChangeSearchUri }
                          style={{ width: 330 }}
-                         enterButton="search"
+                         enterButton={<Icon type="user" />}
                          size="small"
+                         ref={node => this.searchInput = node}
                        />
                     </Row>
                   </Col>
@@ -68,7 +75,7 @@ class HeaderComponent extends React.Component
                                       </Avatar>)
                                     : '' )
                                 }
-                                title={ nick ? nick : <span>&nbsp;</span> }
+                                title={ nick ? nick : <br /> }
                                 description={ id ? id :
                                   (window.currentWebId
                                     ? 'Identify yourself to post messages'

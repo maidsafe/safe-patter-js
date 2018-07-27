@@ -20,8 +20,7 @@ export default class Messager extends React.Component
     render()
     {
         const { match, sendMessage } = this.props;
-        // const { match, webIds } = this.props;
-        // console.log( '>>>>>>>>>', this.props );
+
         return (
             <div className="wrapper">
                 <Switch>
