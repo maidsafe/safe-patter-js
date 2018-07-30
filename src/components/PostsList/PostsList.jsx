@@ -103,8 +103,7 @@ class PostsList extends React.Component
                                             // target="_blank"
                                             style={ { color: 'MidnightBlue' } }
                                             to={ `/profile/${item.actor.replace( 'safe://', '' ).replace( '#me', '' )}` }
-                                        >{item.actorNick.substring( 0, 1 ).toUpperCase()}
-
+                                        >
                                             {item.actorNick}
                                         </Link>
                                         </b>
