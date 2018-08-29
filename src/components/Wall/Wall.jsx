@@ -3,7 +3,7 @@ import { Layout, Form, Row, Col, Input, Button, Avatar, Card, Icon, message } fr
 // import Messager from '../components/Messager/Messager';
 import PostsList from '../PostsList/PostsList';
 import PostForm from '../PostForm/PostForm';
-import unknown from '../../../public/unknown.jpg';
+import unknown from '../../../public/unknown.png';
 
 
 class WallComponent extends React.Component
@@ -71,7 +71,7 @@ class WallComponent extends React.Component
       const website = webId && webId['#me'] && webId['#me'].website;
 
       return (
-          <div>
+          <div style={{ backgroundColor: "#F0F8FF"}}>
               { webId ? (
                   <Row gutter={ 48 }>
                       <Col span={ 8 }>
