@@ -32,7 +32,9 @@ class App extends React.Component
             <div style={ {
                 maxWidth : '800px',
                 display  : 'block',
-                margin   : '0 auto'
+                margin   : '0 auto',
+                padding  : '15px',
+                backgroundColor: '#F0F8FF'
             } }
             >
 

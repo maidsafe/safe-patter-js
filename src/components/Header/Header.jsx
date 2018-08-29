@@ -45,7 +45,7 @@ class HeaderComponent extends React.Component
       const id = webId && webId['#me'] && webId['#me']['@id'];
 
       return (
-          <div>
+          <div style={{ backgroundColor: "#F0F8FF" }}>
               <Row type="flex" align="top" style={ { margin: '10px 0 30px 0' } } >
                   <Col span={ 15 }>
                       <Row>
