@@ -1,6 +1,7 @@
 import React from 'react';
 import { Layout, Form, Row, Col, Input, Button, Avatar, Card, Icon, message } from 'antd';
 import { Link } from 'react-router-dom';
+import styles from './header.css';
 
 const { Header } = Layout;
 const FormItem = Form.Item;
@@ -45,7 +46,7 @@ class HeaderComponent extends React.Component
       const id = webId && webId['#me'] && webId['#me']['@id'];
 
       return (
-          <div style={{ backgroundColor: "#F0F8FF" }}>
+          <div className={ styles.container }>
               <Row type="flex" align="top" style={ { margin: '10px 0 30px 0' } } >
                   <Col span={ 15 }>
                       <Row>

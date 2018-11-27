@@ -4,12 +4,9 @@ import { withRouter, Route, Switch, Redirect } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as userActions from '../actions/user_actions';
-
 import styles from './global.css';
 import HeaderComponent from '../components/Header/Header';
-
 import Wall from '../components/Wall/Wall';
-
 import { Layout, Row, Col, Avatar } from 'antd';
 
 const {
@@ -29,15 +26,7 @@ class App extends React.Component
         console.log( 'Selected WebID:', webId );
         console.log( 'WallWebId:', wallWebId );
         return (
-            <div style={ {
-                maxWidth : '800px',
-                display  : 'block',
-                margin   : '0 auto',
-                padding  : '15px',
-                backgroundColor: '#F0F8FF'
-            } }
-            >
-
+            <div className={ styles.hdrContainer }>
                 <Row>
                     <Col span={ 24 }>
                         <Route

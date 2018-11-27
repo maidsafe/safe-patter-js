@@ -4,7 +4,7 @@ import { Layout, Form, Row, Col, Input, Button, Avatar, Card, Icon, message } fr
 import PostsList from '../PostsList/PostsList';
 import PostForm from '../PostForm/PostForm';
 import unknown from '../../../public/unknown.png';
-
+import styles from './wall.css';
 
 class WallComponent extends React.Component
 {
@@ -71,7 +71,7 @@ class WallComponent extends React.Component
       const website = webId && webId['#me'] && webId['#me'].website;
 
       return (
-          <div style={{ backgroundColor: "#F0F8FF"}}>
+          <div className={ styles.container }>
               { webId ? (
                   <Row gutter={ 48 }>
                       <Col span={ 8 }>
