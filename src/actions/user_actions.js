@@ -1,4 +1,8 @@
+import mime from 'mime';
+import nodePath from 'path';
 import { createAction, createActions } from 'redux-actions';
+
+const ACTIVITYSTREAMS_VOCAB_URL = 'https://www.w3.org/ns/activitystreams/';
 
 export const TYPES = {
     CONNECT_TO_NET   : 'CONNECT_TO_NET',
@@ -11,6 +15,7 @@ export const TYPES = {
 };
 
 let safeApp = null;
+
 const appInfo = {
     id     : 'net.maidsafe.example',
     name   : 'Patter',
@@ -32,6 +37,7 @@ const connect = async () =>
     safeApp = await window.safe.initialiseApp( appInfo );
     await unregisteredConn();
     console.log( 'Read-only connection created...' );
+    return true;//(safeApp.web !== undefined);
 };
 
 const authoriseApp = async () =>
@@ -43,13 +49,25 @@ const authoriseApp = async () =>
     console.log( 'Signed in...' );
 };
 
+const fetchPostsMd = async ( webId ) =>
+{
+    let postsMd;
+    if (webId['#me'].inbox) {
+      const { content } = await safeApp.fetch(webId['#me'].inbox);
+      postsMd = content;
+    } else {
+      // fallback to old format for posts link
+      postsMd = await safeApp.mutableData.newPublic( webId.posts.xorName, webId.posts.typeTag );
+    }
+    return postsMd;
+};
+
 const postNewPost = async ( webId, wallWebId, newPost ) =>
 {
     // Now we can add the post in the posts container
     console.log( 'ADDING POST TO:', wallWebId );
 
-    const postsMd =
-        await safeApp.mutableData.newPublic( wallWebId.posts.xorName, wallWebId.posts.typeTag );
+    const postsMd = await fetchPostsMd( wallWebId );
     const postsRdf = postsMd.emulateAs( 'rdf' );
 
     const graphId = `${wallWebId['@id']}/posts`;
@@ -61,28 +79,30 @@ const postNewPost = async ( webId, wallWebId, newPost ) =>
     postsRdf.setId( graphId );
     console.log( 'GRAPH ID:', graphId );
 
-    const ACTSTREAMS = postsRdf.namespace( 'https://www.w3.org/ns/activitystreams/' );
+    const ACTSTREAMS = postsRdf.namespace( ACTIVITYSTREAMS_VOCAB_URL );
 
     postsRdf.add( id, ACTSTREAMS( 'type' ), postsRdf.literal( 'Note' ) );
-    postsRdf.add( id, ACTSTREAMS( 'attributedTo' ), postsRdf.literal( webId['#me']['@id'] ) );
+    postsRdf.add( id, ACTSTREAMS( 'attributedTo' ), postsRdf.sym( webId['#me']['@id'] ) );
     postsRdf.add( id, ACTSTREAMS( 'summary' ), postsRdf.literal( newPost.summary ) );
     postsRdf.add( id, ACTSTREAMS( 'published' ), postsRdf.literal( newPost.published ) );
     postsRdf.add( id, ACTSTREAMS( 'content' ), postsRdf.literal( newPost.content ) );
+    if (newPost.attachment) {
+      postsRdf.add( id, ACTSTREAMS( 'attachment' ), postsRdf.sym( newPost.attachment ) );
+    }
 
     const serial = await postsRdf.serialise();
     console.log( 'NEW POST:', serial );
 
     await postsRdf.append();
 
-    // console.log("NEW POST:", newPost);
     return newPost;
 };
 
 const fetchWallWebId = async ( webIdUri ) =>
 {
     console.log( 'FETCH WALL WEBID:', webIdUri );
-    const { serviceMd: webIdMd, type } = await safeApp.fetch( webIdUri );
-    if ( type !== 'RDF' ) throw 'Service is not mapped to a WebID RDF';
+    const { content: webIdMd, resourceType } = await safeApp.fetch( webIdUri );
+    if ( resourceType !== 'RDF' ) throw 'Service is not mapped to a WebID RDF';
 
     const entries = await webIdMd.getEntries();
     const list = await entries.listEntries();
@@ -94,13 +114,12 @@ const fetchWallWebId = async ( webIdUri ) =>
     const webIdRdf = webIdMd.emulateAs( 'rdf' );
     await webIdRdf.nowOrWhenFetched();
 
-    const serial = await webIdRdf.serialise( 'application/ld+json' );
+    const serial = await webIdRdf.serialise( 'text/turtle' );
     console.log( 'Target WebID doc:', serial );
 
     const baseUri = webIdUri.split( '#' )[0];
     const webIdGraph = `${baseUri}#me`;
-    const postsGraph = `${baseUri}/posts`;
-    const FOAF = webIdRdf.namespace( 'http://xmlns.com/foaf/0.1/' );
+    const FOAF = webIdRdf.vocabs.FOAF;
 
     const nameMatch = webIdRdf.statementsMatching( webIdRdf.sym( webIdGraph ), FOAF( 'name' ), undefined );
     const name = nameMatch[0] && nameMatch[0].object.value;
@@ -111,11 +130,24 @@ const fetchWallWebId = async ( webIdUri ) =>
     const imageMatch = webIdRdf.statementsMatching( webIdRdf.sym( webIdGraph ), FOAF( 'image' ), undefined );
     const image = imageMatch[0] && imageMatch[0].object.value;
 
-    const SAFETERMS = webIdRdf.namespace( 'http://safenetwork.org/safevocab/' );
-    const xornameMatch = webIdRdf.statementsMatching( webIdRdf.sym( postsGraph ), SAFETERMS( 'xorName' ), undefined );
-    const xorName = xornameMatch[0].object.value.split( ',' );
-    const typetagMatch = webIdRdf.statementsMatching( webIdRdf.sym( postsGraph ), SAFETERMS( 'typeTag' ), undefined );
-    const typeTag = parseInt( typetagMatch[0].object.value );
+    const ACTSTREAMS = webIdRdf.namespace( ACTIVITYSTREAMS_VOCAB_URL );
+    const inboxMatch = webIdRdf.statementsMatching( webIdRdf.sym( webIdGraph ), ACTSTREAMS( 'inbox' ), undefined );
+    const inbox = inboxMatch[0] && inboxMatch[0].object.value;
+
+    // if there is no inbox link, let's fallback to try old format
+    let posts;
+    if (!inbox) {
+      const postsGraph = `${baseUri}/posts`;
+      const SAFETERMS = webIdRdf.vocabs.SAFETERMS;
+      const xornameMatch = webIdRdf.statementsMatching( webIdRdf.sym( postsGraph ), SAFETERMS( 'xorName' ), undefined );
+      const xorName = xornameMatch[0] && xornameMatch[0].object.value.split( ',' );
+      const typetagMatch = webIdRdf.statementsMatching( webIdRdf.sym( postsGraph ), SAFETERMS( 'typeTag' ), undefined );
+      const typeTag = typetagMatch[0] && parseInt( typetagMatch[0].object.value );
+      posts = {
+          xorName,
+          typeTag
+      };
+    }
 
     const wallWebId = {
         '@id' : baseUri,
@@ -124,25 +156,23 @@ const fetchWallWebId = async ( webIdUri ) =>
             name,
             nick,
             website,
-            image
+            image,
+            inbox,
         },
-        posts : {
-            xorName,
-            typeTag
-        }
+        posts
     };
     return wallWebId;
 };
 
 const fetchActorWebId = async ( webIdUri ) =>
 {
-    const { serviceMd: webIdMd, type } = await safeApp.fetch( webIdUri );
-    if ( type !== 'RDF' ) throw 'Service is not mapped to a WebID RDF';
+    const { content: webIdMd, resourceType } = await safeApp.fetch( webIdUri );
+    if ( resourceType !== 'RDF' ) throw 'Service is not mapped to a WebID RDF';
 
     const webIdRdf = webIdMd.emulateAs( 'rdf' );
     await webIdRdf.nowOrWhenFetched();
 
-    const FOAF = webIdRdf.namespace( 'http://xmlns.com/foaf/0.1/' );
+    const FOAF = webIdRdf.vocabs.FOAF;
     const nickMatch = webIdRdf.statementsMatching( webIdRdf.sym( webIdUri ), FOAF( 'nick' ), undefined );
     const nick = nickMatch[0].object.value;
     const imageMatch = webIdRdf.statementsMatching( webIdRdf.sym( webIdUri ), FOAF( 'image' ), undefined );
@@ -152,15 +182,7 @@ const fetchActorWebId = async ( webIdUri ) =>
 
 const fetchWallPosts = async ( wallWebId ) =>
 {
-    const postsMd = await safeApp.mutableData.newPublic( wallWebId.posts.xorName, wallWebId.posts.typeTag );
-    /*
-    const entries = await postsMd.getEntries();
-    const list = await entries.listEntries();
-    list.forEach( ( e ) =>
-    {
-        console.log( 'POSTS ENTRY:', e.key.toString(), e.value.toString() );
-    } );
-    */
+    const postsMd = await fetchPostsMd( wallWebId );
     const postsRdf = postsMd.emulateAs( 'rdf' );
     await postsRdf.nowOrWhenFetched();
     postsRdf.setId( wallWebId['@id'] );
@@ -172,7 +194,7 @@ const fetchWallPosts = async ( wallWebId ) =>
     const posts = [];
     const webIdsCache = {};
 
-    const ACTSTREAMS = postsRdf.namespace( 'https://www.w3.org/ns/activitystreams/' );
+    const ACTSTREAMS = postsRdf.namespace( ACTIVITYSTREAMS_VOCAB_URL );
     return Promise.all( keys.map( ( key ) => new Promise( ( resolve, reject ) =>
     {
         const id = key.toString();
@@ -186,13 +208,16 @@ const fetchWallPosts = async ( wallWebId ) =>
         const summary = match[0].object.value;
         match = postsRdf.statementsMatching( postsRdf.sym( id ), ACTSTREAMS( 'content' ), undefined );
         const content = match[0].object.value;
+        const atchMatch = postsRdf.statementsMatching( postsRdf.sym( id ), ACTSTREAMS( 'attachment' ), undefined );
+        const attachment = atchMatch[0] && atchMatch[0].object.value;
         const post = {
             id,
             type,
             actor,
             published,
             summary,
-            content
+            content,
+            attachment
         };
 
         if ( webIdsCache[actor] )
@@ -217,6 +242,17 @@ const fetchWallPosts = async ( wallWebId ) =>
             posts );
 };
 
+const uploadFile = async ( filename, data ) =>
+{
+    const immData = await safeApp.immutableData.create();
+    await immData.write(data);
+    const cipherOpt = await safeApp.cipherOpt.newPlainText();
+    const mimeType = mime.getType(nodePath.extname(filename));
+    console.log("File's MIME type:", mimeType);
+    const { xorUrl } = await immData.close(cipherOpt, true, mimeType);
+    return xorUrl;
+};
+
 export const {
     connectToNet,
     authorise,
@@ -228,7 +264,7 @@ export const {
 } = createActions( {
     [TYPES.CONNECT_TO_NET] : async () =>
     {
-        await connect();
+        return connect();
     },
     [TYPES.AUTHORISE] : async () =>
     {
@@ -245,8 +281,24 @@ export const {
     {
         await unregisteredConn();
     },
-    [TYPES.ADD_POST] : async ( webId, wallWebId, post ) =>
+    [TYPES.ADD_POST] : async ( webId, wallWebId, post, fileToShare ) =>
     {
+        if (fileToShare) {
+          return new Promise((resolve, reject) => {
+            console.log("Uploading:", fileToShare.name);
+            var reader = new window.FileReader();
+            reader.onload = function(){
+              var data = reader.result;
+              return uploadFile(fileToShare.name, data)
+                .then((xorurl) => {
+                  console.log("XOR URL: ", xorurl);
+                  post.attachment = xorurl;
+                  return postNewPost( webId, wallWebId, post ).then( resolve );
+                })
+            };
+            reader.readAsArrayBuffer(fileToShare);
+          });
+        }
         const newPost = await postNewPost( webId, wallWebId, post );
         return newPost;
     },
@@ -256,18 +308,34 @@ export const {
         console.log( 'Getting info from Peruse for user:', webId );
 
         const wallWebId = { ...webId };
-        wallWebId.posts = { ...webId.posts };
-        wallWebId.posts.xorName = webId.posts.xorName.split( ',' );
-        wallWebId.posts.typeTag = parseInt( webId.posts.typeTag );
+
+        const me = wallWebId['#me'];
+        if ( me.image && me.image['@id'] )
+        {
+            wallWebId['#me'].image = me.image['@id'];
+        }
+
+        if ( me.inbox && me.inbox['@id'] )
+        {
+            wallWebId['#me'].inbox = me.inbox['@id'];
+        }
+
+        if ( me.website && me.website['@id'] )
+        {
+            wallWebId['#me'].website = me.website['@id'];
+        }
+
+        if (!me.inbox) {
+            wallWebId.posts = { ...webId.posts };
+            wallWebId.posts.xorName = webId.posts.xorName.split( ',' );
+            wallWebId.posts.typeTag = parseInt( webId.posts.typeTag );
+        }
 
         let webIdClone;
         if ( safeApp.auth.registered )
         {
             console.log( 'Switching the signed-in WebID also to:', webId );
-            webIdClone = { ...webId };
-            webIdClone.posts = { ...webId.posts };
-            webIdClone.posts.xorName = webId.posts.xorName.split( ',' );
-            webIdClone.posts.typeTag = parseInt( webId.posts.typeTag );
+            webIdClone = { ...wallWebId };
         }
 
         const posts = await fetchWallPosts( wallWebId );

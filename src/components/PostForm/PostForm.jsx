@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Input, Button, Row, Col } from 'antd';
+import { Form, Input, Button, Row, Col, Upload, Icon } from 'antd';
 
 const FormItem = Form.Item;
 
@@ -27,6 +27,10 @@ const mapPropsToFields = ( { post } ) =>
  */
 class PostForm extends React.Component
 {
+    state = {
+      fileList: [],
+    }
+
     handleSubmit = ( e ) =>
     {
         const { addPost, users, sendMessage } = this.props;
@@ -44,14 +48,26 @@ class PostForm extends React.Component
                 postToAdd.published = nowTimestamp.toISOString();
 
                 console.log( 'Received values of form: ', values );
-                addPost( users.webId, users.wallWebId, postToAdd );
+                addPost( users.webId, users.wallWebId, postToAdd, this.state.fileList[0] );
+                this.setState({ fileList: [] });
             }
         } );
     }
 
     render = ( ) =>
     {
-        const { getFieldDecorator } = this.props.form;
+        const { getFieldDecorator, posting } = this.props.form;
+        const uploadProps = {
+          multiple: false,
+          onRemove: (file) => {
+            this.setState({ fileList: [] });
+          },
+          beforeUpload: (file) => {
+            this.setState({ fileList: [file] });
+            return false;
+          },
+          fileList: this.state.fileList,
+        };
 
         return (
             <Form layout="vertical" onSubmit={ this.handleSubmit } style={{ border: '1px solid lightgray', padding: '5px', marginBottom: '30px'}}>
@@ -60,7 +76,7 @@ class PostForm extends React.Component
                         {getFieldDecorator( 'summary', {
                             rules : [{ required: true, message: 'Please enter a summary' }],
                         } )( <Input
-                                disabled={ !this.props.users.webId }
+                                disabled={ !this.props.users.webId || posting }
                                 placeholder="A summary..."
                              />
                             )}
@@ -69,20 +85,30 @@ class PostForm extends React.Component
                         {getFieldDecorator( 'content', {
                             rules : [{ required: true, message: 'Please enter some text!' }],
                         } )( <Input.TextArea
-                                disabled={ !this.props.users.webId }
+                                disabled={ !this.props.users.webId || posting }
                                 placeholder="Something super important..."
                              />
                             )}
                     </FormItem>
                 </Row>
                 <Row>
-                  <Col style={{ textAlign: 'right' }}>
+                  <Col span={8}>
+                    <FormItem style={{ margin: 0 }}>
+                      <Upload {...uploadProps}>
+                        <Button disabled={ !this.props.users.webId || posting } >
+                          <Icon type="upload" />Share File
+                        </Button>
+                      </Upload>
+                    </FormItem>
+                  </Col>
+                  <Col span={8} offset={8} style={{ textAlign: 'right' }}>
                     <Button
                         htmlType="submit"
                         type="primary"
-                        disabled={ !this.props.users.webId }
+                        disabled={ !this.props.users.webId || posting }
+                        loading={ posting }
                     >
-                      Post
+                      { posting ? 'Posting' : 'Post' }
                     </Button>
                   </Col>
                 </Row>
