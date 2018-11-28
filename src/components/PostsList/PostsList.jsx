@@ -94,14 +94,14 @@ class PostsList extends React.Component
                                     <Avatar size="small" src={ item.actorImage } />
                                     :
                                     <Avatar style={ { backgroundColor: 'gray', verticalAlign: 'middle' } } >
-                                        {item.actorNick.substring( 0, 1 ).toUpperCase()}
+                                        {item.actorNick ? item.actorNick.substring( 0, 1 ).toUpperCase() : ''}
                                     </Avatar>
                                 }
                                 title={
                                     <div>
                                         <b><Link
                                             style={ { color: 'MidnightBlue' } }
-                                            to={ `/profile/${item.actor.replace( 'safe://', '' ).replace( '#me', '' )}` }
+                                            to={ `/profile/${item.actor ? item.actor.replace( 'safe://', '' ).replace( '#me', '' ) : ''}` }
                                         >
                                             {item.actorNick}
                                         </Link>

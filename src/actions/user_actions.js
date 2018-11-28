@@ -257,7 +257,14 @@ const uploadFile = async ( filename, data ) =>
     const cipherOpt = await safeApp.cipherOpt.newPlainText();
     const mimeType = mime.getType(nodePath.extname(filename));
     console.log("File's MIME type:", mimeType);
-    const { xorUrl } = await immData.close(cipherOpt, true, mimeType);
+    let xorUrl;
+    try {
+      const { xorUrl: url } = await immData.close(cipherOpt, true, mimeType);
+      xorUrl = url;
+    } catch (err) {
+      const { xorUrl: url } = await immData.close(cipherOpt, true, null);
+      xorUrl = url;
+    }
     return xorUrl;
 };
 
@@ -279,10 +286,11 @@ export const {
         await authoriseApp();
         console.log( 'Getting info of current WebID:', window.currentWebId );
         const webId = { ...window.currentWebId };
-        webId.posts = { ...window.currentWebId.posts };
-        webId.posts.xorName = webId.posts.xorName.split( ',' );
-        webId.posts.typeTag = parseInt( webId.posts.typeTag );
-
+        if (!webId['#me'].inbox) {
+          webId.posts = { ...window.currentWebId.posts };
+          webId.posts.xorName = webId.posts.xorName.split( ',' );
+          webId.posts.typeTag = parseInt( webId.posts.typeTag );
+        }
         return webId;
     },
     [TYPES.DOWNGRADE_CONN] : async () =>
