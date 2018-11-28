@@ -4,6 +4,8 @@ const initialState = {
     webId     : null,
     wallWebId : null,
     posts     : [],
+    posting   : false,
+    experimentalEnabled : true,
 };
 
 export default ( state = initialState, action ) =>
@@ -22,7 +24,7 @@ export default ( state = initialState, action ) =>
         }
         case TYPES.CONNECT_TO_NET:
         {
-            return { ...state, connected: true }
+            return { ...state, connected: true, experimentalEnabled: payload }
         }
         case TYPES.SET_CURRENT_USER:
         {
@@ -38,7 +40,7 @@ export default ( state = initialState, action ) =>
             const oldPosts = state.posts;
             console.log( "Let's update list of posts" );
             const postArray = [...oldPosts, payload];
-            return { ...state, posts: postArray };
+            return { ...state, posts: postArray, posting: true };
         }
         case TYPES.SWITCH_WALL:
         {

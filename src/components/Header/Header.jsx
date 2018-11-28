@@ -16,7 +16,7 @@ class HeaderComponent extends React.Component
 
   onChangeSearchUri = ( e ) =>
   {
-      this.setState( { searchWebIdUri: e.target.value } );
+      this.setState( { searchWebIdUri: e.target.value.replace(/^safe:\/\//i, '') } );
   }
 
   handleSearch = async ( webIdUri ) =>

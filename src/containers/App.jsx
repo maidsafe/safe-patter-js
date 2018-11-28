@@ -9,22 +9,22 @@ import HeaderComponent from '../components/Header/Header';
 import Wall from '../components/Wall/Wall';
 import { Layout, Row, Col, Avatar } from 'antd';
 
-const {
-    Header, Sider, Content, Footer
-} = Layout;
+const { Header, Sider, Content, Footer } = Layout;
 
 class App extends React.Component
 {
     render = () =>
     {
         const {
-            users, match, addPost, switchWall, authorise, downgradeConn, fetchPosts
+            users, match, addPost, switchWall, authorise,
+            downgradeConn, fetchPosts, experimentalEnabled
         } = this.props;
         const webId = users && users.webId;
         const wallWebId = users && users.wallWebId;
 
         console.log( 'Selected WebID:', webId );
         console.log( 'WallWebId:', wallWebId );
+
         return (
             <div className={ styles.hdrContainer }>
                 <Row>

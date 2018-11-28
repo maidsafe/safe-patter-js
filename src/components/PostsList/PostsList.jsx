@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { List, Card, Avatar, Row, Col, Button } from 'antd';
+import { List, Card, Avatar, Row, Col, Button, Icon } from 'antd';
 import { Link } from 'react-router-dom';
 
 function timeSince( timeStamp )
@@ -100,7 +100,6 @@ class PostsList extends React.Component
                                 title={
                                     <div>
                                         <b><Link
-                                            // target="_blank"
                                             style={ { color: 'MidnightBlue' } }
                                             to={ `/profile/${item.actor.replace( 'safe://', '' ).replace( '#me', '' )}` }
                                         >
@@ -116,12 +115,23 @@ class PostsList extends React.Component
                                 }
                                 description={
                                     <div>
-
                                         <Row span={ 15 }>
                                             {item.summary}
                                         </Row>
                                         <Row span={ 15 }>
-                                            {item.content}
+                                          { item.content }
+                                        </Row>
+                                        <Row span={ 15 } style={{ fontSize: '0.9em' }}>
+                                          {item.attachment &&
+                                              <a
+                                                target="_blank"
+                                                style={ { color: 'CornflowerBlue' } }
+                                                href={ `${item.attachment}` }
+                                              >
+                                                  <Icon type="link" />
+                                                  {` ${item.attachment}`}
+                                              </a>
+                                          }
                                         </Row>
                                     </div>
                                 }
