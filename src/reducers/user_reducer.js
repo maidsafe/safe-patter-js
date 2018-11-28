@@ -24,7 +24,7 @@ export default ( state = initialState, action ) =>
         }
         case TYPES.CONNECT_TO_NET:
         {
-            return { ...state, connected: true, experimentalEnabled: payload }
+            return { ...state, connected: true }
         }
         case TYPES.SET_CURRENT_USER:
         {

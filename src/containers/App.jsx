@@ -17,7 +17,7 @@ class App extends React.Component
     {
         const {
             users, match, addPost, switchWall, authorise,
-            downgradeConn, fetchPosts, experimentalEnabled
+            downgradeConn, fetchPosts
         } = this.props;
         const webId = users && users.webId;
         const wallWebId = users && users.wallWebId;

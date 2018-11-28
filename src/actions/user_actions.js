@@ -1,6 +1,7 @@
 import mime from 'mime';
 import nodePath from 'path';
 import { createAction, createActions } from 'redux-actions';
+import { message } from 'antd';
 
 const ACTIVITYSTREAMS_VOCAB_URL = 'https://www.w3.org/ns/activitystreams/';
 
@@ -37,7 +38,14 @@ const connect = async () =>
     safeApp = await window.safe.initialiseApp( appInfo );
     await unregisteredConn();
     console.log( 'Read-only connection created...' );
-    return true;//(safeApp.web !== undefined);
+
+    try {
+      await safeApp.fetch();
+    } catch (err) {
+      if (err.code === 1021) {
+        message.error('The experimental APIs are disabled, please enable them from the SAFE Browser');
+      }
+    }
 };
 
 const authoriseApp = async () =>
@@ -264,7 +272,7 @@ export const {
 } = createActions( {
     [TYPES.CONNECT_TO_NET] : async () =>
     {
-        return connect();
+        await connect();
     },
     [TYPES.AUTHORISE] : async () =>
     {
