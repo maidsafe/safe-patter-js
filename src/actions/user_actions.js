@@ -39,12 +39,9 @@ const connect = async () =>
     await unregisteredConn();
     console.log( 'Read-only connection created...' );
 
-    try {
-      await safeApp.fetch();
-    } catch (err) {
-      if (err.code === 1021) {
-        message.error('The experimental APIs are disabled, please enable them from the SAFE Browser');
-      }
+    if ( ! safeExperimentsEnabled )
+    {
+      message.error('The experimental APIs are disabled, please enable them from the SAFE Browser');
     }
 };
 
